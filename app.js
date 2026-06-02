@@ -86,22 +86,49 @@ function renderChart(categoryData) {
     // Destroy previous instance to prevent chart flicker bugs on update loops
     if (myChart) { myChart.destroy(); }
 
+    // Filter out categories with $0 spending so they don't crowd the pie chart
+    const activeCategories = {};
+    Object.keys(categoryData).forEach(cat => {
+        if (categoryData[cat] > 0) {
+            activeCategories[cat] = categoryData[cat];
+        }
+    });
+
+    // Create a classic Pie Chart [3]
     myChart = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'pie', // Changed from 'doughnut' to 'pie' [3]
         data: {
-            labels: Object.keys(categoryData),
+            labels: Object.keys(activeCategories),
             datasets: [{
-                data: Object.values(categoryData),
-                backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#c084fc'],
-                borderWidth: 2
+                data: Object.values(activeCategories),
+                backgroundColor: [
+                    '#ff6384', // Rent/Housing (Soft Red)
+                    '#ff9f40', // Food (Orange)
+                    '#ffcd56', // Transport (Yellow)
+                    '#4bc0c0', // Entertainment/Leisure (Teal)
+                    '#36a2eb'  // Savings/Investments (Blue)
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
-            cutout: '70%'
+            plugins: { 
+                legend: { 
+                    display: true, // Shows the color legends clearly at the top
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        font: { size: 11 }
+                    }
+                } 
+            },
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
+
 
 function generateAISuggestions(balance, expenses, cats) {
     const aiConsole = document.getElementById('aiConsole');
