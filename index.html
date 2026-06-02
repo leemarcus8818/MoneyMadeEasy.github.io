@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoneyMadeEasy Pro</title>
     
-    <!-- Cloudflare Network Asset for Clean Styling -->
-    <link rel="stylesheet" href="https://cloudflare.com">
+    <!-- Tailwind CSS for Clean Styling -->
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     
-    <!-- Unpkg Network Asset for Chart.js Graphing -->
-    <script src="https://unpkg.com"></script>
+    <!-- Chart.js for Graphing -->
+    <script src="https://unpkg.com/chart.js"></script>
 </head>
 <body class="bg-emerald-50 min-h-screen p-4 md:p-8">
 
@@ -23,7 +23,7 @@
             </div>
             <div class="space-y-3 text-left">
                 <label class="text-xs font-bold text-gray-700 tracking-wide uppercase">Profile Name</label>
-                <input id="usernameInput" type="text" placeholder="e.g., Marcus, Sarah" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-semibold text-gray-800">
+                <input id="usernameInput" type="text" placeholder="e.g., Marcus, Sarah" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
             </div>
             <button onclick="handleLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-lg">
                 Enter Dashboard
@@ -150,6 +150,32 @@
             checkAuth();
         }
 
+        function addTransaction() {
+            const desc = document.getElementById('desc').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+            const currentMonth = document.getElementById('monthFilter').value;
+
+            if (!desc || isNaN(amount)) return alert('Please fill in all fields.');
+
+            const transaction = {
+                desc,
+                amount,
+                category,
+                month: currentMonth,
+                owner: currentUser,
+                date: new Date().toLocaleDateString()
+            };
+
+            transactions.push(transaction);
+            localStorage.setItem('pro_transactions', JSON.stringify(transactions));
+            
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+            
+            updateUI();
+        }
+
         function updateUI() {
             if (!currentUser) return;
 
@@ -192,4 +218,56 @@
             });
 
             balance.innerText = `$${netBalance.toFixed(2)}`;
-balance.className = text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'};totalExpenseText.innerText = $${totalExpense.toFixed(2)};localStorage.setItem('pro_transactions', JSON.stringify(transactions));renderChart(categories, totalExpense);}function addTransaction() {const desc = document.getElementById('desc').value;const amount = parseFloat(document.getElementById('amount').value);const category = document.getElementById('category').value;const currentMonth = document.getElementById('monthFilter').value;if (!desc || isNaN(amount)) return alert('Please input valid data.');transactions.push({desc,amount,category,month: currentMonth,owner: currentUser,id: Date.now()});document.getElementById('desc').value = '';document.getElementById('amount').value = '';updateUI();}function renderChart(categoryData, totalExpense) {const ctx = document.getElementById('categoryChart').getContext('2d');if (myChart) { myChart.destroy(); }const labelsWithPercentages = [];const chartValues = [];Object.keys(categoryData).forEach(cat => {const val = categoryData[cat];if (val > 0) {const pct = totalExpense > 0 ? ((val / totalExpense) * 100).toFixed(0) : 0;labelsWithPercentages.push(${cat} (${pct}%));chartValues.push(val);}});myChart = new Chart(ctx, {type: 'pie',data: {labels: labelsWithPercentages,datasets: [{data: chartValues,backgroundColor: ['#064e3b', '#047857', '#0d9488', '#10b981', '#34d399'],borderWidth: 2,borderColor: '#ffffff'}]},options: {plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } },responsive: true,maintainAspectRatio: false}});}// CORRECTED AUTOMATIC LIVE FINANCIAL INSIGHTS XML ENGINEasync function fetchLatestMarketInsights() {const aiConsole = document.getElementById('aiConsole');aiConsole.innerHTML = 'Analyzing market streams...';try {const feedUrl = encodeURIComponent('marketwatch.com');const response = await fetch(https://allorigins.win{feedUrl});if (!response.ok) throw new Error('Network error');const data = await response.json();const parser = new DOMParser();const xmlDoc = parser.parseFromString(data.contents, "text/xml");const items = xmlDoc.getElementsByTagName("item");aiConsole.innerHTML = '';for (let i = 0; i < Math.min(items.length, 3); i++) {// FIXED: Replaced standard textContent calls with safe text data parsing selectorsconst title = items[i].getElementsByTagName("title")[0]?.textContent || "Market Update";const description = items[i].getElementsByTagName("description")[0]?.textContent || "Click below to review details.";const link = items[i].getElementsByTagName("link")[0]?.textContent || "#";const itemDiv = document.createElement('div');itemDiv.className = 'p-3 rounded-xl border border-emerald-100 bg-white text-xs space-y-1';itemDiv.innerHTML = <div class="flex items-center space-x-1 font-bold text-emerald-950"> <span>📈</span> <p class="line-clamp-2">${title}</p> </div> <p class="text-gray-500 line-clamp-3 mt-1">${description}</p> <a href="${link}" target="_blank" class="inline-block text-emerald-700 hover:text-emerald-900 font-bold underline mt-1">Read Market Impact &rarr;</a>;aiConsole.appendChild(itemDiv);}} catch (err) {aiConsole.innerHTML = <div class="p-3 rounded-xl border border-amber-200 bg-amber-50 text-xs"> <p class="font-bold text-amber-800">⚠️ Live Feed Offline</p> <p class="text-amber-700 mt-1">Network traffic is limiting external insights. Rely on standard baseline budget guidelines for now.</p> </div>;}}checkAuth();
+            balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`;
+            totalExpenseText.innerText = `$${totalExpense.toFixed(2)}`;
+            
+            updateChartAndInsights(categories);
+        }
+
+        function updateChartAndInsights(categories) {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            const chartData = {
+                labels: Object.keys(categories),
+                datasets: [{
+                    data: Object.values(categories),
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            };
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function fetchLatestMarketInsights() {
+            const aiConsole = document.getElementById('aiConsole');
+            aiConsole.innerHTML = '<p class="text-sm text-gray-600">💡 Smart insights will appear here as you log transactions.</p>';
+        }
+
+        // Initialize the app on page load
+        window.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
