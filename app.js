@@ -6,11 +6,11 @@ function updateUI() {
     const list = document.getElementById('list');
     const balance = document.getElementById('balance');
     const totalExpenseText = document.getElementById('totalExpense');
-    const currentMonth = document.getElementById('monthFilter').value; // e.g. "2026-06"
+    const currentMonth = document.getElementById('monthFilter').value;
     
     list.innerHTML = '';
     
-    // 1. Filter out data belonging ONLY to the currently selected calendar month
+    // Filter out data belonging ONLY to the currently selected calendar month
     const monthlyData = transactions.filter(t => t.month === currentMonth);
 
     let netBalance = 0;
@@ -19,7 +19,7 @@ function updateUI() {
     // Category calculation map buckets
     let categories = { Housing: 0, Food: 0, Transport: 0, Leisure: 0, Savings: 0 };
 
-    monthlyData.forEach((t, index) => {
+    monthlyData.forEach((t) => {
         netBalance += t.amount;
         
         if (t.amount < 0) {
@@ -28,7 +28,6 @@ function updateUI() {
                 categories[t.category] += Math.abs(t.amount);
             }
         } else if (t.category === "Savings") {
-            // Treat explicit transfers to savings asset class as investment allocation
             categories["Savings"] += t.amount;
         }
 
@@ -37,10 +36,10 @@ function updateUI() {
         li.className = `flex justify-between py-2 text-sm items-center`;
         li.innerHTML = `
             <div>
-                <p class="font-semibold text-gray-800">${t.desc}</p>
-                <p class="text-xs text-gray-400">${t.category}</p>
+                <p class="font-semibold text-emerald-950">${t.desc}</p>
+                <p class="text-xs text-emerald-600/70">${t.category}</p>
             </div>
-            <span class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-green-500'}">
+            <span class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-emerald-600'}">
                 ${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount).toFixed(2)}
             </span>
         `;
@@ -49,16 +48,16 @@ function updateUI() {
 
     // Update monetary textual metric boards
     balance.innerText = `$${netBalance.toFixed(2)}`;
-    balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-green-600'}`;
+    balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`;
     totalExpenseText.innerText = `$${totalExpense.toFixed(2)}`;
 
     // Sync state storage data locally
     localStorage.setItem('pro_transactions', JSON.stringify(transactions));
 
-    // 2. Render dynamic category visualization graph
-    renderChart(categories);
+    // Render dynamic green-themed pie chart
+    renderChart(categories, totalExpense);
 
-    // 3. Fire rules-based automated financial guidance engine
+    // Fire rules-based automated financial guidance engine
     generateAISuggestions(netBalance, totalExpense, categories);
 }
 
@@ -70,43 +69,44 @@ function addTransaction() {
 
     if (!desc || isNaN(amount)) return alert('Please input valid textual description and numerical balances.');
 
-    // Append metadata structural nodes
     transactions.push({ desc, amount, category, month: currentMonth, id: Date.now() });
     
-    // Clear forms 
     document.getElementById('desc').value = '';
     document.getElementById('amount').value = '';
     
     updateUI();
 }
 
-function renderChart(categoryData) {
+function renderChart(categoryData, totalExpense) {
     const ctx = document.getElementById('categoryChart').getContext('2d');
     
-    // Destroy previous instance to prevent chart flicker bugs on update loops
     if (myChart) { myChart.destroy(); }
 
-    // Filter out categories with $0 spending so they don't crowd the pie chart
-    const activeCategories = {};
+    const labelsWithPercentages = [];
+    const chartValues = [];
+
     Object.keys(categoryData).forEach(cat => {
-        if (categoryData[cat] > 0) {
-            activeCategories[cat] = categoryData[cat];
+        const val = categoryData[cat];
+        if (val > 0) {
+            // Calculate slice percentage allocation matching current expense caps
+            const pct = totalExpense > 0 ? ((val / totalExpense) * 100).toFixed(0) : 0;
+            labelsWithPercentages.push(`${cat} (${pct}%)`);
+            chartValues.push(val);
         }
     });
 
-    // Create a classic Pie Chart [3]
     myChart = new Chart(ctx, {
-        type: 'pie', // Changed from 'doughnut' to 'pie' [3]
+        type: 'pie',
         data: {
-            labels: Object.keys(activeCategories),
+            labels: labelsWithPercentages,
             datasets: [{
-                data: Object.values(activeCategories),
+                data: chartValues,
                 backgroundColor: [
-                    '#ff6384', // Rent/Housing (Soft Red)
-                    '#ff9f40', // Food (Orange)
-                    '#ffcd56', // Transport (Yellow)
-                    '#4bc0c0', // Entertainment/Leisure (Teal)
-                    '#36a2eb'  // Savings/Investments (Blue)
+                    '#022c22', // Housing (Darkest Emerald/Forest)
+                    '#065f46', // Food (Deep Emerald)
+                    '#0f766e', // Transport (Teal Green)
+                    '#10b981', // Leisure (Bright Green)
+                    '#6ee7b7'  // Savings (Soft Mint)
                 ],
                 borderWidth: 2,
                 borderColor: '#ffffff'
@@ -115,12 +115,9 @@ function renderChart(categoryData) {
         options: {
             plugins: { 
                 legend: { 
-                    display: true, // Shows the color legends clearly at the top
+                    display: true, 
                     position: 'top',
-                    labels: {
-                        boxWidth: 12,
-                        font: { size: 11 }
-                    }
+                    labels: { boxWidth: 10, font: { size: 10 } }
                 } 
             },
             responsive: true,
@@ -129,14 +126,12 @@ function renderChart(categoryData) {
     });
 }
 
-
 function generateAISuggestions(balance, expenses, cats) {
     const aiConsole = document.getElementById('aiConsole');
     aiConsole.innerHTML = '';
 
     let insights = [];
 
-    // Rule 1: General Deficit warning
     if (balance < 0) {
         insights.push({
             type: 'danger',
@@ -145,16 +140,14 @@ function generateAISuggestions(balance, expenses, cats) {
         });
     }
 
-    // Rule 2: Overspending on Leisure/Entertainment 
     if (expenses > 0 && (cats.Leisure / expenses) > 0.20) {
         insights.push({
             type: 'warning',
             title: 'High Leisure Spending',
-            text: `Leisure devours ${(cats.Leisure / expenses * 100).toFixed(0)}% of expenses. Consider cooking home meals or canceling unused subscriptions.`
+            text: `Leisure devours ${(cats.Leisure / expenses * 100).toFixed(0)}% of expenses. Consider cooking home meals.`
         });
     }
 
-    // Rule 3: Golden 50/30/20 Rule checks for savings
     let standardIncome = balance + expenses; 
     if (standardIncome > 0 && (cats.Savings / standardIncome) < 0.20) {
         insights.push({
@@ -164,7 +157,6 @@ function generateAISuggestions(balance, expenses, cats) {
         });
     }
 
-    // Default clean state response fallback
     if (insights.length === 0) {
         insights.push({
             type: 'success',
@@ -173,14 +165,13 @@ function generateAISuggestions(balance, expenses, cats) {
         });
     }
 
-    // Generate beautiful visual cards for each AI suggestion output node
     insights.forEach(item => {
         const div = document.createElement('div');
         const colors = {
             danger: 'bg-red-50 border-red-200 text-red-800',
             warning: 'bg-amber-50 border-amber-200 text-amber-800',
-            info: 'bg-blue-50 border-blue-200 text-blue-800',
-            success: 'bg-green-50 border-green-200 text-green-800'
+            info: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+            success: 'bg-emerald-950 text-emerald-100 border-emerald-900'
         };
         
         div.className = `p-3 rounded-xl border ${colors[item.type] || 'bg-gray-50'} text-xs`;
@@ -189,5 +180,5 @@ function generateAISuggestions(balance, expenses, cats) {
     });
 }
 
-// Initial engine bootstrap load orchestration
+// Start
 updateUI();
