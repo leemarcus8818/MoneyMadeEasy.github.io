@@ -4,40 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoneyMadeEasy Pro</title>
-    <!-- Tailwind CSS for sleek layout -->
- <script src="https://jsdelivr.net"></script>
-<link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Chart.js for beautiful visual graphs -->
-    <script src="https://jsdelivr.net"></script>
+    
+    <!-- BACKUP 1: Tailwind CSS via Unpkg Network -->
+    <script src="https://unpkg.com"></script>
+    
+    <!-- BACKUP 2: Chart.js via Cloudflare CDN Network -->
+    <script src="https://cloudflare.com"></script>
 </head>
 <body class="bg-emerald-50/30 min-h-screen p-4 md:p-8">
-    <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- LOGIN PANEL LAYER -->
+    <div id="authScreen" class="fixed inset-0 bg-emerald-950 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-6 text-center">
+            <div>
+                <span class="text-4xl">💰</span>
+                <h1 class="text-2xl font-black text-emerald-950 mt-2">MoneyMadeEasy</h1>
+                <p class="text-xs text-gray-400 mt-1">Enter a profile name to access your private dashboard</p>
+            </div>
+            <div class="space-y-3 text-left">
+                <label class="text-xs font-bold text-emerald-900 tracking-wide uppercase">Profile Name</label>
+                <input id="usernameInput" type="text" placeholder="e.g., Marcus, Sarah" class="w-full p-3 bg-emerald-50/30 rounded-xl border border-emerald-100 focus:outline-emerald-600 font-semibold">
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold p-3 rounded-xl transition-all shadow-lg shadow-emerald-100">
+                Enter Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CORE CONTENT -->
+    <div id="appScreen" class="max-w-6xl mx-auto space-y-6 hidden">
         
-        <!-- Header: Deep Dark Green Background -->
+        <!-- Header -->
         <header class="flex justify-between items-center bg-emerald-950 p-6 rounded-2xl shadow-sm text-white">
             <div>
                 <h1 class="text-3xl font-black tracking-tight text-emerald-400">💰 MoneyMadeEasy</h1>
-                <p class="text-sm text-emerald-200/70">Your AI-Powered Personal Wealth Companion</p>
+                <p class="text-sm text-emerald-200/70">Welcome back, <span id="userGreeting" class="font-bold text-white underline decoration-emerald-400">User</span>!</p>
             </div>
-            <!-- Month Picker Tracker -->
-            <div>
+            <div class="flex items-center space-x-3">
                 <select id="monthFilter" onchange="updateUI()" class="bg-emerald-900 text-emerald-100 font-bold p-2 px-4 rounded-xl border border-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
                     <option value="2026-06">June 2026</option>
                     <option value="2026-05">May 2026</option>
                     <option value="2026-04">April 2026</option>
                 </select>
+                <button onclick="handleLogout()" class="bg-red-700/80 hover:bg-red-700 text-xs font-bold p-2 px-3 rounded-xl text-white transition-all">
+                    Sign Out
+                </button>
             </div>
         </header>
 
         <!-- Main Dashboard Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <!-- Column 1: Financial Input & Transactions -->
+            <!-- Column 1: Financial Input -->
             <div class="bg-white p-6 rounded-2xl shadow-xs border border-emerald-100/50 space-y-4">
                 <h2 class="text-xl font-bold text-emerald-950">Add Transaction</h2>
                 <div class="space-y-3">
-                    <input id="desc" type="text" placeholder="Description (e.g., Target, Salary)" class="w-full p-3 bg-emerald-50/20 rounded-xl border border-emerald-100 focus:outline-emerald-600">
-                    <input id="amount" type="number" placeholder="Amount (e.g., 2500 or -45)" class="w-full p-3 bg-emerald-50/20 rounded-xl border border-emerald-100 focus:outline-emerald-600">
+                    <input id="desc" type="text" placeholder="Description" class="w-full p-3 bg-emerald-50/20 rounded-xl border border-emerald-100 focus:outline-emerald-600">
+                    <input id="amount" type="number" placeholder="Amount (e.g. -50)" class="w-full p-3 bg-emerald-50/20 rounded-xl border border-emerald-100 focus:outline-emerald-600">
                     
                     <select id="category" class="w-full p-3 bg-emerald-50/20 rounded-xl border border-emerald-100 focus:outline-emerald-600">
                         <option value="Income">💰 Income / Paycheck</option>
@@ -48,12 +71,10 @@
                         <option value="Savings">📈 Investments / Savings</option>
                     </select>
 
-                    <!-- Dark Green Button -->
                     <button onclick="addTransaction()" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold p-3 rounded-xl transition-all shadow-md shadow-emerald-100">Log Item</button>
                 </div>
 
                 <hr class="border-emerald-50 my-4">
-
                 <h3 class="font-bold text-emerald-900 mb-2">Monthly History</h3>
                 <ul id="list" class="divide-y divide-emerald-50 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
@@ -85,10 +106,7 @@
                     <span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">✨</span>
                     <h2 class="text-xl font-bold text-emerald-950">AI Finance Insights</h2>
                 </div>
-                
-                <div id="aiConsole" class="flex-1 bg-emerald-50/10 rounded-xl p-4 border border-emerald-100/40 space-y-3 overflow-y-auto max-h-[380px]">
-                    <!-- AI Insight text loads here dynamically -->
-                </div>
+                <div id="aiConsole" class="flex-1 bg-emerald-50/10 rounded-xl p-4 border border-emerald-100/40 space-y-3 overflow-y-auto max-h-[380px]"></div>
             </div>
 
         </div>
