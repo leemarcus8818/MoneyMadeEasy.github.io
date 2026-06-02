@@ -3,280 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoneyMadeEasy Pro</title>
+    <title>MoneyMadeEasy - Login</title>
     
     <!-- Tailwind CSS from jsDelivr CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js from jsDelivr CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body class="bg-emerald-50 min-h-screen p-4 md:p-8">
+<body class="bg-gradient-to-br from-emerald-900 to-emerald-700 min-h-screen flex items-center justify-center p-4">
 
-    <!-- LOGIN PANEL LAYER -->
-    <div id="authScreen" class="fixed inset-0 bg-emerald-900 flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl space-y-6 text-center">
+    <!-- LOGIN PANEL -->
+    <div class="w-full max-w-md">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl space-y-6 text-center">
             <div>
-                <span class="text-4xl">💰</span>
-                <h1 class="text-2xl font-black text-gray-900 mt-2">MoneyMadeEasy</h1>
-                <p class="text-xs text-gray-400 mt-1">Enter a profile name to access your private dashboard</p>
+                <span class="text-6xl block mb-2">💰</span>
+                <h1 class="text-3xl font-black text-gray-900">MoneyMadeEasy</h1>
+                <p class="text-sm text-gray-500 mt-2">Pro Financial Dashboard</p>
             </div>
+            
+            <div class="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded text-left">
+                <p class="text-xs text-gray-700"><span class="font-bold">Demo Tip:</span> Enter any profile name to get started</p>
+            </div>
+
             <div class="space-y-3 text-left">
                 <label class="text-xs font-bold text-gray-700 tracking-wide uppercase">Profile Name</label>
-                <input id="usernameInput" type="text" placeholder="e.g., Marcus, Sarah" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                <input id="usernameInput" type="text" placeholder="e.g., Marcus, Sarah" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" onkeypress="if(event.key === 'Enter') handleLogin()">
             </div>
+
             <button onclick="handleLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-lg">
-                Enter Dashboard
+                Enter Dashboard →
             </button>
+
+            <p class="text-xs text-gray-500 mt-6">No account needed • Data saved locally</p>
         </div>
     </div>
 
-    <!-- MAIN APP CORE CONTENT -->
-    <div id="appScreen" class="max-w-6xl mx-auto space-y-6 hidden">
-        
-        <!-- Header -->
-        <header class="flex justify-between items-center bg-emerald-900 p-6 rounded-2xl shadow-sm text-white">
-            <div>
-                <h1 class="text-3xl font-black tracking-tight text-emerald-300">💰 MoneyMadeEasy</h1>
-                <p class="text-sm text-emerald-100">Welcome back, <span id="userGreeting" class="font-bold text-white underline">User</span>!</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <select id="monthFilter" onchange="updateUI()" class="bg-emerald-800 text-emerald-100 font-bold p-2 px-4 rounded-xl border border-emerald-700 focus:outline-none">
-                    <option value="2026-06">June 2026</option>
-                    <option value="2026-05">May 2026</option>
-                    <option value="2026-04">April 2026</option>
-                </select>
-                <button onclick="handleLogout()" class="bg-red-700 hover:bg-red-800 text-xs font-bold p-2 px-3 rounded-xl text-white transition-all">
-                    Sign Out
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Dashboard Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Column 1: Financial Input -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
-                <h2 class="text-xl font-bold text-gray-800">Add Transaction</h2>
-                <div class="space-y-3">
-                    <input id="desc" type="text" placeholder="Description" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                    <input id="amount" type="number" placeholder="Amount (e.g. -50)" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                    
-                    <select id="category" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                        <option value="Income">💰 Income / Paycheck</option>
-                        <option value="Housing">🏠 Rent / Housing</option>
-                        <option value="Food">🍔 Food & Dining</option>
-                        <option value="Transport">🚗 Gas / Transit</option>
-                        <option value="Leisure">🎉 Entertainment / Fun</option>
-                        <option value="Savings">📈 Investments / Savings</option>
-                    </select>
-
-                    <button onclick="addTransaction()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">Log Item</button>
-                </div>
-
-                <hr class="border-gray-100 my-4">
-                <h3 class="font-bold text-gray-700 mb-2">Monthly History</h3>
-                <ul id="list" class="divide-y divide-gray-100 max-h-60 overflow-y-auto pr-1"></ul>
-            </div>
-
-            <!-- Column 2: Visual Category Breakdown -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col justify-between">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-1">Category Breakdown</h2>
-                    <p class="text-xs text-gray-500 mb-4">Where your hard-earned cash goes</p>
-                </div>
-                <div class="w-full max-w-[280px] mx-auto relative h-64">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between">
-                    <div>
-                        <p class="text-xs text-gray-400">Total Expenses</p>
-                        <p id="totalExpense" class="text-xl font-bold text-red-600">$0.00</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-gray-400">Net Savings</p>
-                        <p id="balance" class="text-xl font-bold text-emerald-600">$0.00</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Column 3: AI & Automatic Live Suggestions Engine -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col">
-                <div class="flex items-center space-x-2 mb-4">
-                    <span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">✨</span>
-                    <h2 class="text-xl font-bold text-gray-800">Live Insights Feed</h2>
-                </div>
-                <div id="aiConsole" class="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-3 overflow-y-auto max-h-[380px]"></div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- APPLICATION ENGINE -->
     <script>
-        let currentUser = localStorage.getItem('mme_logged_user') || null;
-        let transactions = JSON.parse(localStorage.getItem('pro_transactions')) || [];
-        let myChart = null;
-
-        function checkAuth() {
-            const authScreen = document.getElementById('authScreen');
-            const appScreen = document.getElementById('appScreen');
-            const greeting = document.getElementById('userGreeting');
-
-            if (currentUser) {
-                authScreen.classList.add('hidden');
-                appScreen.classList.remove('hidden');
-                greeting.innerText = currentUser;
-                updateUI();
-                fetchLatestMarketInsights();
-            } else {
-                authScreen.classList.remove('hidden');
-                appScreen.classList.add('hidden');
-            }
-        }
-
         function handleLogin() {
             const userInput = document.getElementById('usernameInput').value.trim();
-            if (!userInput) return alert('Please input a valid profile username.');
-            
-            currentUser = userInput;
-            localStorage.setItem('mme_logged_user', currentUser);
-            checkAuth();
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            localStorage.removeItem('mme_logged_user');
-            checkAuth();
-        }
-
-        function addTransaction() {
-            const desc = document.getElementById('desc').value.trim();
-            const amount = parseFloat(document.getElementById('amount').value);
-            const category = document.getElementById('category').value;
-            const currentMonth = document.getElementById('monthFilter').value;
-
-            if (!desc || isNaN(amount)) return alert('Please fill in all fields.');
-
-            const transaction = {
-                desc,
-                amount,
-                category,
-                month: currentMonth,
-                owner: currentUser,
-                date: new Date().toLocaleDateString()
-            };
-
-            transactions.push(transaction);
-            localStorage.setItem('pro_transactions', JSON.stringify(transactions));
-            
-            document.getElementById('desc').value = '';
-            document.getElementById('amount').value = '';
-            
-            updateUI();
-        }
-
-        function updateUI() {
-            if (!currentUser) return;
-
-            const list = document.getElementById('list');
-            const balance = document.getElementById('balance');
-            const totalExpenseText = document.getElementById('totalExpense');
-            const currentMonth = document.getElementById('monthFilter').value;
-            
-            list.innerHTML = '';
-            const filteredData = transactions.filter(t => t.month === currentMonth && t.owner === currentUser);
-
-            let netBalance = 0;
-            let totalExpense = 0;
-            let categories = { Housing: 0, Food: 0, Transport: 0, Leisure: 0, Savings: 0 };
-
-            filteredData.forEach((t) => {
-                netBalance += t.amount;
-                
-                if (t.amount < 0) {
-                    totalExpense += Math.abs(t.amount);
-                    if (categories[t.category] !== undefined) {
-                        categories[t.category] += Math.abs(t.amount);
-                    }
-                } else if (t.category === "Savings") {
-                    categories["Savings"] += t.amount;
-                }
-
-                const li = document.createElement('li');
-                li.className = `flex justify-between py-2 text-sm items-center`;
-                li.innerHTML = `
-                    <div>
-                        <p class="font-semibold text-gray-800">${t.desc}</p>
-                        <p class="text-xs text-gray-500">${t.category}</p>
-                    </div>
-                    <span class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-emerald-600'}">
-                        ${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount).toFixed(2)}
-                    </span>
-                `;
-                list.appendChild(li);
-            });
-
-            balance.innerText = `$${netBalance.toFixed(2)}`;
-            balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`;
-            totalExpenseText.innerText = `$${totalExpense.toFixed(2)}`;
-            
-            updateChartAndInsights(categories);
-        }
-
-        function updateChartAndInsights(categories) {
-            const ctx = document.getElementById('categoryChart');
-            if (!ctx) return;
-
-            const chartData = {
-                labels: Object.keys(categories),
-                datasets: [{
-                    data: Object.values(categories),
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF'
-                    ],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            };
-
-            if (myChart) {
-                myChart.destroy();
+            if (!userInput) {
+                alert('Please enter a profile name.');
+                return;
             }
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            
+            localStorage.setItem('mme_logged_user', userInput);
+            window.location.href = './dashboard.html';
         }
 
-        function fetchLatestMarketInsights() {
-            const aiConsole = document.getElementById('aiConsole');
-            aiConsole.innerHTML = '<p class="text-sm text-gray-600">💡 Smart insights will appear here as you log transactions.</p>';
+        // If already logged in, redirect to dashboard
+        if (localStorage.getItem('mme_logged_user')) {
+            window.location.href = './dashboard.html';
         }
-
-        // Initialize the app on page load
-        window.addEventListener('DOMContentLoaded', checkAuth);
-        checkAuth();
     </script>
 </body>
 </html>
