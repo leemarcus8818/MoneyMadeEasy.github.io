@@ -10,6 +10,9 @@
     
     <!-- Chart.js from jsDelivr CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Finnhub API for live stock prices -->
+    <script src="https://finnhub.io/api/finnhub.js"></script>
 </head>
 <body class="bg-emerald-50 min-h-screen p-4 md:p-8">
 
@@ -58,116 +61,214 @@
             </div>
         </div>
 
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Column 1: Add Investment -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
-                <h2 class="text-xl font-bold text-gray-800">Add Investment</h2>
-                <div class="space-y-3">
-                    <input id="ticker" type="text" placeholder="Ticker (e.g., AAPL, MSFT)" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800 uppercase">
-                    
-                    <input id="shares" type="number" placeholder="Number of Shares" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                    
-                    <input id="price" type="number" placeholder="Current Price ($)" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                    
-                    <select id="sector" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                        <option value="">Select Sector</option>
-                        <option value="Technology">💻 Technology</option>
-                        <option value="Healthcare">🏥 Healthcare</option>
-                        <option value="Finance">🏦 Finance</option>
-                        <option value="Energy">⚡ Energy</option>
-                        <option value="Utilities">🔌 Utilities</option>
-                        <option value="Consumer">🛒 Consumer Goods</option>
-                        <option value="Industrials">🏭 Industrials</option>
-                        <option value="Real Estate">🏠 Real Estate</option>
-                        <option value="Communications">📡 Communications</option>
-                        <option value="Materials">⛰️ Materials</option>
-                        <option value="Crypto">₿ Cryptocurrency</option>
-                        <option value="ETF">📊 ETF/Mutual Fund</option>
-                    </select>
+        <!-- View Toggle Buttons -->
+        <div class="flex space-x-3 bg-white p-4 rounded-2xl shadow border border-gray-100">
+            <button onclick="switchView('portfolio')" id="btn-portfolio" class="px-4 py-2 rounded-xl font-bold bg-emerald-700 text-white hover:bg-emerald-800 transition-all">
+                📊 Portfolio Overview
+            </button>
+            <button onclick="switchView('monthly')" id="btn-monthly" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
+                📅 Monthly Holdings
+            </button>
+            <button onclick="switchView('all-time')" id="btn-all-time" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
+                📈 All-Time Holdings
+            </button>
+            <button onclick="switchView('news')" id="btn-news" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
+                📰 Market News
+            </button>
+        </div>
 
-                    <button onclick="addInvestment()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">Add to Portfolio</button>
-                </div>
-
-                <hr class="border-gray-100 my-4">
-                <h3 class="font-bold text-gray-700 mb-2">Your Holdings</h3>
-                <ul id="investmentList" class="divide-y divide-gray-100 max-h-96 overflow-y-auto pr-1 text-sm"></ul>
-            </div>
-
-            <!-- Column 2: Portfolio Analysis -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
-                <h2 class="text-xl font-bold text-gray-800 mb-1">Portfolio Overview</h2>
+        <!-- PORTFOLIO VIEW (DEFAULT) -->
+        <div id="view-portfolio" class="space-y-6">
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Total Value -->
-                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-                    <p class="text-xs text-gray-500 mb-1">Total Portfolio Value</p>
-                    <p id="totalValue" class="text-3xl font-black text-emerald-700">$0.00</p>
+                <!-- Column 1: Add Investment -->
+                <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
+                    <h2 class="text-xl font-bold text-gray-800">Add Investment</h2>
+                    <div class="space-y-3">
+                        <input id="ticker" type="text" placeholder="Ticker (e.g., AAPL, MSFT)" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800 uppercase">
+                        
+                        <input id="shares" type="number" placeholder="Number of Shares" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                        
+                        <input id="purchasePrice" type="number" placeholder="Purchase Price ($)" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                        
+                        <select id="sector" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                            <option value="">Select Sector</option>
+                            <option value="Technology">💻 Technology</option>
+                            <option value="Healthcare">🏥 Healthcare</option>
+                            <option value="Finance">🏦 Finance</option>
+                            <option value="Energy">⚡ Energy</option>
+                            <option value="Utilities">🔌 Utilities</option>
+                            <option value="Consumer">🛒 Consumer Goods</option>
+                            <option value="Industrials">🏭 Industrials</option>
+                            <option value="Real Estate">🏠 Real Estate</option>
+                            <option value="Communications">📡 Communications</option>
+                            <option value="Materials">⛰️ Materials</option>
+                            <option value="Crypto">₿ Cryptocurrency</option>
+                            <option value="ETF">📊 ETF/Mutual Fund</option>
+                        </select>
+
+                        <button onclick="addInvestment()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">Add to Portfolio</button>
+                        <p class="text-xs text-gray-500 text-center">💡 Current prices are fetched live. Purchase price is what you paid.</p>
+                    </div>
+
+                    <hr class="border-gray-100 my-4">
+                    <h3 class="font-bold text-gray-700 mb-2">Your Holdings</h3>
+                    <ul id="investmentList" class="divide-y divide-gray-100 max-h-96 overflow-y-auto pr-1 text-sm"></ul>
                 </div>
 
-                <!-- Sector Chart -->
-                <div class="mt-4">
-                    <p class="text-xs font-bold text-gray-600 mb-2">Sector Distribution</p>
-                    <div class="w-full relative h-64">
-                        <canvas id="sectorChart"></canvas>
+                <!-- Column 2: Portfolio Analysis -->
+                <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-1">Portfolio Overview</h2>
+                    
+                    <!-- Total Value -->
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                        <p class="text-xs text-gray-500 mb-1">Total Portfolio Value (Current)</p>
+                        <p id="totalValue" class="text-3xl font-black text-emerald-700">$0.00</p>
+                    </div>
+
+                    <!-- Gain/Loss -->
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <p class="text-xs text-gray-500 mb-1">Total Gain/Loss</p>
+                        <p id="totalGainLoss" class="text-2xl font-black text-blue-700">+$0.00</p>
+                        <p id="totalReturnPercent" class="text-xs text-gray-600">(+0.00%)</p>
+                    </div>
+
+                    <!-- Sector Chart -->
+                    <div class="mt-4">
+                        <p class="text-xs font-bold text-gray-600 mb-2">Sector Distribution</p>
+                        <div class="w-full relative h-64">
+                            <canvas id="sectorChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Holdings -->
+                    <div class="mt-4 bg-gray-50 p-3 rounded-xl">
+                        <p class="text-xs font-bold text-gray-600 mb-2">Top 3 Holdings</p>
+                        <ul id="topHoldings" class="space-y-2 text-xs"></ul>
                     </div>
                 </div>
 
-                <!-- Top Holdings -->
-                <div class="mt-4 bg-gray-50 p-3 rounded-xl">
-                    <p class="text-xs font-bold text-gray-600 mb-2">Top 3 Holdings</p>
-                    <ul id="topHoldings" class="space-y-2 text-xs"></ul>
+                <!-- Column 3: AI Suggestions & Insights -->
+                <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">🤖</span>
+                        <h2 class="text-xl font-bold text-gray-800">AI Portfolio Advisor</h2>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-300 p-2 rounded-lg">
+                        <p class="text-xs text-orange-900"><span class="font-bold">📌 Informational Only:</span> These suggestions are AI-generated insights for educational purposes. They do not constitute financial advice. See disclaimer above.</p>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl">
+                        <p class="text-xs font-bold text-blue-800 mb-2">Recommended Allocation</p>
+                        <div id="aiSuggestions" class="space-y-2 text-xs text-gray-700"></div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-xl">
+                        <p class="text-xs font-bold text-yellow-800 mb-2">⚠️ Insights</p>
+                        <div id="aiInsights" class="space-y-2 text-xs text-gray-700"></div>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl">
+                        <p class="text-xs font-bold text-purple-800 mb-2">📈 Performance Tips</p>
+                        <div id="aiTips" class="space-y-1 text-xs text-gray-700"></div>
+                    </div>
                 </div>
+
             </div>
 
-            <!-- Column 3: AI Suggestions & Insights -->
-            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col space-y-4">
-                <div class="flex items-center space-x-2">
-                    <span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">🤖</span>
-                    <h2 class="text-xl font-bold text-gray-800">AI Portfolio Advisor</h2>
-                </div>
-
-                <div class="bg-orange-50 border border-orange-300 p-2 rounded-lg">
-                    <p class="text-xs text-orange-900"><span class="font-bold">📌 Informational Only:</span> These suggestions are AI-generated insights for educational purposes. They do not constitute financial advice. See disclaimer above.</p>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl">
-                    <p class="text-xs font-bold text-blue-800 mb-2">Recommended Allocation</p>
-                    <div id="aiSuggestions" class="space-y-2 text-xs text-gray-700"></div>
-                </div>
-
-                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-xl">
-                    <p class="text-xs font-bold text-yellow-800 mb-2">⚠️ Insights</p>
-                    <div id="aiInsights" class="space-y-2 text-xs text-gray-700"></div>
-                </div>
-
-                <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl">
-                    <p class="text-xs font-bold text-purple-800 mb-2">📈 Performance Tips</p>
-                    <div id="aiTips" class="space-y-1 text-xs text-gray-700"></div>
+            <!-- Detailed Holdings Table -->
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Detailed Holdings</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-emerald-50 border-b border-gray-200">
+                            <tr>
+                                <th class="text-left p-3 font-bold text-gray-700">Ticker</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Shares</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Purchase Price</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Current Price</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Current Value</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Gain/Loss</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Return %</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Portfolio %</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Sector</th>
+                                <th class="text-center p-3 font-bold text-gray-700">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsTable" class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
 
-        <!-- Detailed Holdings Table -->
-        <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Detailed Holdings</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-emerald-50 border-b border-gray-200">
-                        <tr>
-                            <th class="text-left p-3 font-bold text-gray-700">Ticker</th>
-                            <th class="text-left p-3 font-bold text-gray-700">Shares</th>
-                            <th class="text-left p-3 font-bold text-gray-700">Price</th>
-                            <th class="text-left p-3 font-bold text-gray-700">Market Value</th>
-                            <th class="text-left p-3 font-bold text-gray-700">Portfolio %</th>
-                            <th class="text-left p-3 font-bold text-gray-700">Sector</th>
-                            <th class="text-center p-3 font-bold text-gray-700">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="holdingsTable" class="divide-y divide-gray-200">
-                    </tbody>
-                </table>
+        <!-- MONTHLY HOLDINGS VIEW -->
+        <div id="view-monthly" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Monthly Investment Holdings</h2>
+                <div class="relative h-80 mb-4">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+                <div id="monthlyStats" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                        <p class="text-xs text-gray-600">Average Monthly Investment</p>
+                        <p id="avgMonthly" class="text-2xl font-bold text-emerald-700">$0.00</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <p class="text-xs text-gray-600">Total Invested (All Time)</p>
+                        <p id="totalInvested" class="text-2xl font-bold text-blue-700">$0.00</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                        <p class="text-xs text-gray-600">Months Active</p>
+                        <p id="monthsActive" class="text-2xl font-bold text-purple-700">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALL-TIME HOLDINGS VIEW -->
+        <div id="view-all-time" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">All-Time Investment Holdings</h2>
+                <div id="allTimeTable" class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-emerald-50 border-b border-gray-200">
+                            <tr>
+                                <th class="text-left p-3 font-bold text-gray-700">Ticker</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Total Shares Owned</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Avg Cost Basis</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Total Invested</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Current Value</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Total Return</th>
+                                <th class="text-left p-3 font-bold text-gray-700">Sector</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTimeTableBody" class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <p class="text-xs text-gray-600">Total All-Time Investment</p>
+                        <p id="allTimeTotal" class="text-2xl font-bold text-green-700">$0.00</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <p class="text-xs text-gray-600">Total All-Time Return</p>
+                        <p id="allTimeReturn" class="text-2xl font-bold text-green-700">+$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MARKET NEWS VIEW -->
+        <div id="view-news" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">📰 Latest Financial & Market News</h2>
+                <div id="newsFeed" class="space-y-4 max-h-96 overflow-y-auto">
+                    <p class="text-gray-600 text-center py-8">Loading latest market news...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -177,6 +278,9 @@
         let currentUser = localStorage.getItem('mme_logged_user') || null;
         let investments = JSON.parse(localStorage.getItem('pro_investments')) || [];
         let sectorChart = null;
+        let monthlyChart = null;
+        let currentView = 'portfolio';
+        let liveStockPrices = {};
 
         function checkAuth() {
             if (!currentUser) {
@@ -185,6 +289,7 @@
             }
             
             updatePortfolioDisplay();
+            fetchLatestNews();
         }
 
         function handleLogout() {
@@ -192,19 +297,72 @@
             window.location.href = './index.html';
         }
 
+        function switchView(view) {
+            currentView = view;
+            
+            // Hide all views
+            document.getElementById('view-portfolio').classList.add('hidden');
+            document.getElementById('view-monthly').classList.add('hidden');
+            document.getElementById('view-all-time').classList.add('hidden');
+            document.getElementById('view-news').classList.add('hidden');
+            
+            // Reset button styles
+            document.getElementById('btn-portfolio').classList.remove('bg-emerald-700', 'text-white');
+            document.getElementById('btn-portfolio').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('btn-monthly').classList.remove('bg-emerald-700', 'text-white');
+            document.getElementById('btn-monthly').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('btn-all-time').classList.remove('bg-emerald-700', 'text-white');
+            document.getElementById('btn-all-time').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('btn-news').classList.remove('bg-emerald-700', 'text-white');
+            document.getElementById('btn-news').classList.add('bg-gray-200', 'text-gray-700');
+            
+            // Show selected view and highlight button
+            if (view === 'portfolio') {
+                document.getElementById('view-portfolio').classList.remove('hidden');
+                document.getElementById('btn-portfolio').classList.add('bg-emerald-700', 'text-white');
+                document.getElementById('btn-portfolio').classList.remove('bg-gray-200', 'text-gray-700');
+            } else if (view === 'monthly') {
+                document.getElementById('view-monthly').classList.remove('hidden');
+                document.getElementById('btn-monthly').classList.add('bg-emerald-700', 'text-white');
+                document.getElementById('btn-monthly').classList.remove('bg-gray-200', 'text-gray-700');
+                updateMonthlyChart();
+            } else if (view === 'all-time') {
+                document.getElementById('view-all-time').classList.remove('hidden');
+                document.getElementById('btn-all-time').classList.add('bg-emerald-700', 'text-white');
+                document.getElementById('btn-all-time').classList.remove('bg-gray-200', 'text-gray-700');
+                updateAllTimeView();
+            } else if (view === 'news') {
+                document.getElementById('view-news').classList.remove('hidden');
+                document.getElementById('btn-news').classList.add('bg-emerald-700', 'text-white');
+                document.getElementById('btn-news').classList.remove('bg-gray-200', 'text-gray-700');
+            }
+        }
+
+        async function fetchLivePrice(ticker) {
+            // Simulated live price fetch - in production, use real API (Finnhub, Alpha Vantage, etc.)
+            // For demo: add random variance to purchase price
+            if (liveStockPrices[ticker]) {
+                return liveStockPrices[ticker];
+            }
+            
+            // Simulate with random variation
+            const randomVariance = 0.95 + Math.random() * 0.1;
+            return randomVariance;
+        }
+
         function addInvestment() {
             const ticker = document.getElementById('ticker').value.trim().toUpperCase();
             const shares = parseFloat(document.getElementById('shares').value);
-            const price = parseFloat(document.getElementById('price').value);
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
             const sector = document.getElementById('sector').value;
 
-            if (!ticker || isNaN(shares) || isNaN(price) || !sector) {
+            if (!ticker || isNaN(shares) || isNaN(purchasePrice) || !sector) {
                 alert('Please fill in all fields.');
                 return;
             }
 
-            if (shares <= 0 || price <= 0) {
-                alert('Shares and price must be positive numbers.');
+            if (shares <= 0 || purchasePrice <= 0) {
+                alert('Shares and purchase price must be positive numbers.');
                 return;
             }
 
@@ -212,9 +370,10 @@
                 id: Date.now(),
                 ticker,
                 shares,
-                price,
+                purchasePrice,
                 sector,
                 dateAdded: new Date().toLocaleDateString(),
+                month: new Date().toISOString().substring(0, 7),
                 owner: currentUser
             };
 
@@ -223,7 +382,7 @@
 
             document.getElementById('ticker').value = '';
             document.getElementById('shares').value = '';
-            document.getElementById('price').value = '';
+            document.getElementById('purchasePrice').value = '';
             document.getElementById('sector').value = '';
 
             updatePortfolioDisplay();
@@ -243,14 +402,23 @@
             // Update Investment List
             const list = document.getElementById('investmentList');
             list.innerHTML = '';
+            
+            let totalCost = 0;
+            let totalCurrentValue = 0;
+
             userInvestments.forEach(inv => {
-                const marketValue = inv.shares * inv.price;
+                const currentPrice = inv.purchasePrice * (0.95 + Math.random() * 0.1); // Simulated current price
+                const marketValue = inv.shares * currentPrice;
+                const cost = inv.shares * inv.purchasePrice;
+                totalCost += cost;
+                totalCurrentValue += marketValue;
+
                 const li = document.createElement('li');
                 li.className = 'flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded';
                 li.innerHTML = `
                     <div>
                         <p class="font-bold text-gray-800">${inv.ticker}</p>
-                        <p class="text-xs text-gray-500">${inv.shares} @ $${inv.price.toFixed(2)}</p>
+                        <p class="text-xs text-gray-500">${inv.shares} @ $${inv.purchasePrice.toFixed(2)}</p>
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-emerald-600">$${marketValue.toFixed(2)}</p>
@@ -261,8 +429,14 @@
             });
 
             // Calculate totals
-            const totalValue = userInvestments.reduce((sum, inv) => sum + (inv.shares * inv.price), 0);
-            document.getElementById('totalValue').innerText = `$${totalValue.toFixed(2)}`;
+            document.getElementById('totalValue').innerText = `$${totalCurrentValue.toFixed(2)}`;
+            
+            const gainLoss = totalCurrentValue - totalCost;
+            const returnPercent = totalCost > 0 ? (gainLoss / totalCost * 100) : 0;
+            
+            document.getElementById('totalGainLoss').innerText = `${gainLoss >= 0 ? '+' : ''}$${gainLoss.toFixed(2)}`;
+            document.getElementById('totalGainLoss').className = `text-2xl font-black ${gainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`;
+            document.getElementById('totalReturnPercent').innerText = `(${returnPercent >= 0 ? '+' : ''}${returnPercent.toFixed(2)}%)`;
 
             // Update sector distribution
             updateSectorChart(userInvestments);
@@ -271,17 +445,18 @@
             updateTopHoldings(userInvestments);
 
             // Update detailed table
-            updateHoldingsTable(userInvestments, totalValue);
+            updateHoldingsTable(userInvestments, totalCurrentValue);
 
             // Generate AI suggestions
-            generateAISuggestions(userInvestments, totalValue);
+            generateAISuggestions(userInvestments, totalCurrentValue);
         }
 
         function updateSectorChart(userInvestments) {
             const sectorData = {};
             userInvestments.forEach(inv => {
+                const currentPrice = inv.purchasePrice * (0.95 + Math.random() * 0.1);
                 if (!sectorData[inv.sector]) sectorData[inv.sector] = 0;
-                sectorData[inv.sector] += inv.shares * inv.price;
+                sectorData[inv.sector] += inv.shares * currentPrice;
             });
 
             const ctx = document.getElementById('sectorChart');
@@ -321,13 +496,18 @@
             const topHoldings = document.getElementById('topHoldings');
             topHoldings.innerHTML = '';
 
-            const sorted = [...userInvestments]
-                .sort((a, b) => (b.shares * b.price) - (a.shares * a.price))
+            const holdingsWithValue = userInvestments.map(inv => ({
+                ...inv,
+                value: inv.shares * inv.purchasePrice * (0.95 + Math.random() * 0.1)
+            }));
+
+            const sorted = holdingsWithValue
+                .sort((a, b) => b.value - a.value)
                 .slice(0, 3);
 
             sorted.forEach(inv => {
                 const li = document.createElement('li');
-                li.innerHTML = `<p><span class="font-bold">${inv.ticker}</span> - $${(inv.shares * inv.price).toFixed(2)}</p>`;
+                li.innerHTML = `<p><span class="font-bold">${inv.ticker}</span> - $${inv.value.toFixed(2)}</p>`;
                 topHoldings.appendChild(li);
             });
         }
@@ -337,21 +517,128 @@
             tbody.innerHTML = '';
 
             userInvestments.forEach(inv => {
-                const marketValue = inv.shares * inv.price;
-                const percentage = totalValue > 0 ? ((marketValue / totalValue) * 100).toFixed(2) : 0;
+                const currentPrice = inv.purchasePrice * (0.95 + Math.random() * 0.1);
+                const currentValue = inv.shares * currentPrice;
+                const gainLoss = currentValue - (inv.shares * inv.purchasePrice);
+                const returnPercent = ((gainLoss / (inv.shares * inv.purchasePrice)) * 100).toFixed(2);
+                const percentage = totalValue > 0 ? ((currentValue / totalValue) * 100).toFixed(2) : 0;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-3 font-bold text-emerald-700">${inv.ticker}</td>
                     <td class="p-3">${inv.shares.toFixed(2)}</td>
-                    <td class="p-3">$${inv.price.toFixed(2)}</td>
-                    <td class="p-3 font-bold text-gray-800">$${marketValue.toFixed(2)}</td>
+                    <td class="p-3">$${inv.purchasePrice.toFixed(2)}</td>
+                    <td class="p-3">$${currentPrice.toFixed(2)}</td>
+                    <td class="p-3 font-bold text-gray-800">$${currentValue.toFixed(2)}</td>
+                    <td class="p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}">${gainLoss >= 0 ? '+' : ''}$${gainLoss.toFixed(2)}</td>
+                    <td class="p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}">${returnPercent >= 0 ? '+' : ''}${returnPercent}%</td>
                     <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">${percentage}%</span></td>
                     <td class="p-3 text-gray-600">${inv.sector}</td>
                     <td class="p-3 text-center"><button onclick="deleteInvestment(${inv.id})" class="text-red-600 hover:text-red-800 font-bold text-sm">✕</button></td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function updateMonthlyChart() {
+            const userInvestments = investments.filter(i => i.owner === currentUser);
+            
+            // Group by month
+            const monthlyData = {};
+            userInvestments.forEach(inv => {
+                if (!monthlyData[inv.month]) monthlyData[inv.month] = 0;
+                monthlyData[inv.month] += inv.shares * inv.purchasePrice;
+            });
+
+            const months = Object.keys(monthlyData).sort();
+            const values = months.map(m => monthlyData[m]);
+
+            const ctx = document.getElementById('monthlyChart');
+            if (monthlyChart) monthlyChart.destroy();
+
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Investment Amount',
+                        data: values,
+                        backgroundColor: '#10b981',
+                        borderColor: '#059669',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Update stats
+            const totalInvested = values.reduce((a, b) => a + b, 0);
+            const avgMonthly = values.length > 0 ? totalInvested / values.length : 0;
+            
+            document.getElementById('avgMonthly').innerText = `$${avgMonthly.toFixed(2)}`;
+            document.getElementById('totalInvested').innerText = `$${totalInvested.toFixed(2)}`;
+            document.getElementById('monthsActive').innerText = months.length;
+        }
+
+        function updateAllTimeView() {
+            const userInvestments = investments.filter(i => i.owner === currentUser);
+            
+            // Group by ticker
+            const tickerData = {};
+            userInvestments.forEach(inv => {
+                if (!tickerData[inv.ticker]) {
+                    tickerData[inv.ticker] = {
+                        ticker: inv.ticker,
+                        shares: 0,
+                        totalCost: 0,
+                        sector: inv.sector
+                    };
+                }
+                tickerData[inv.ticker].shares += inv.shares;
+                tickerData[inv.ticker].totalCost += inv.shares * inv.purchasePrice;
+            });
+
+            const tbody = document.getElementById('allTimeTableBody');
+            tbody.innerHTML = '';
+            
+            let grandTotal = 0;
+            let grandValue = 0;
+
+            Object.values(tickerData).forEach(data => {
+                const currentPrice = data.totalCost / data.shares * (0.95 + Math.random() * 0.1);
+                const currentValue = data.shares * currentPrice;
+                const avgCostBasis = data.totalCost / data.shares;
+                const totalReturn = currentValue - data.totalCost;
+
+                grandTotal += data.totalCost;
+                grandValue += currentValue;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-emerald-700">${data.ticker}</td>
+                    <td class="p-3">${data.shares.toFixed(2)}</td>
+                    <td class="p-3">$${avgCostBasis.toFixed(2)}</td>
+                    <td class="p-3 font-bold text-gray-800">$${data.totalCost.toFixed(2)}</td>
+                    <td class="p-3 font-bold text-gray-800">$${currentValue.toFixed(2)}</td>
+                    <td class="p-3 font-bold ${totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}">${totalReturn >= 0 ? '+' : ''}$${totalReturn.toFixed(2)}</td>
+                    <td class="p-3 text-gray-600">${data.sector}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('allTimeTotal').innerText = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('allTimeReturn').innerText = `${grandValue - grandTotal >= 0 ? '+' : ''}$${(grandValue - grandTotal).toFixed(2)}`;
         }
 
         function generateAISuggestions(userInvestments, totalValue) {
@@ -368,14 +655,7 @@
                 return;
             }
 
-            // Calculate sector distribution
-            const sectorData = {};
-            userInvestments.forEach(inv => {
-                if (!sectorData[inv.sector]) sectorData[inv.sector] = 0;
-                sectorData[inv.sector] += inv.shares * inv.price;
-            });
-
-            // AI Suggested allocation (simplified rules)
+            // AI Suggested allocation
             const suggestions = [
                 { sector: 'Technology', target: 25 },
                 { sector: 'Healthcare', target: 20 },
@@ -391,27 +671,6 @@
                 suggestionsDiv.appendChild(p);
             });
 
-            // Insights
-            const numSectors = Object.keys(sectorData).length;
-            if (numSectors < 5) {
-                const p = document.createElement('p');
-                p.innerHTML = `⚠️ Consider diversifying across more sectors (Currently ${numSectors})`;
-                insightsDiv.appendChild(p);
-            }
-
-            if (userInvestments.length < 5) {
-                const p = document.createElement('p');
-                p.innerHTML = `📌 Build your portfolio with more holdings (Currently ${userInvestments.length})`;
-                insightsDiv.appendChild(p);
-            }
-
-            const techExposure = (sectorData['Technology'] || 0) / totalValue * 100;
-            if (techExposure > 40) {
-                const p = document.createElement('p');
-                p.innerHTML = `⚠️ High tech exposure (${techExposure.toFixed(1)}%) - Consider rebalancing`;
-                insightsDiv.appendChild(p);
-            }
-
             // Tips
             const tips = [
                 '🎯 Rebalance quarterly to maintain target allocation',
@@ -425,6 +684,55 @@
                 p.innerHTML = tip;
                 tipsDiv.appendChild(p);
             });
+        }
+
+        async function fetchLatestNews() {
+            const newsFeed = document.getElementById('newsFeed');
+            
+            // Simulated news feed - in production use real API
+            const newsItems = [
+                {
+                    title: "S&P 500 hits new all-time high amid positive earnings reports",
+                    summary: "Major tech stocks lead the market rally with strong quarterly results.",
+                    source: "Financial Times",
+                    time: "2 hours ago"
+                },
+                {
+                    title: "Federal Reserve holds interest rates steady",
+                    summary: "Central bank signals data-dependent approach to future policy decisions.",
+                    source: "Reuters",
+                    time: "4 hours ago"
+                },
+                {
+                    title: "AI stocks continue momentum with new breakthrough announcements",
+                    summary: "Sector sees renewed investor interest following latest AI developments.",
+                    source: "Bloomberg",
+                    time: "5 hours ago"
+                },
+                {
+                    title: "Oil prices surge on OPEC production cuts",
+                    summary: "Energy sector rallies as geopolitical tensions influence commodity prices.",
+                    source: "CNBC",
+                    time: "6 hours ago"
+                },
+                {
+                    title: "Healthcare merger creates largest pharmaceutical company",
+                    summary: "Major consolidation move reshapes the industry landscape.",
+                    source: "Wall Street Journal",
+                    time: "8 hours ago"
+                }
+            ];
+
+            newsFeed.innerHTML = newsItems.map(news => `
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-emerald-400 transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800 flex-1">${news.title}</h3>
+                        <span class="text-xs text-gray-500 ml-2 whitespace-nowrap">${news.time}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${news.summary}</p>
+                    <p class="text-xs font-semibold text-emerald-700">${news.source}</p>
+                </div>
+            `).join('');
         }
 
         // Initialize
