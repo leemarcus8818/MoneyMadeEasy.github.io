@@ -24,9 +24,7 @@
             </div>
             <div class="flex items-center space-x-3">
                 <select id="monthFilter" onchange="updateUI()" class="bg-emerald-800 text-emerald-100 font-bold p-2 px-4 rounded-xl border border-emerald-700 focus:outline-none">
-                    <option value="2026-06">June 2026</option>
-                    <option value="2026-05">May 2026</option>
-                    <option value="2026-04">April 2026</option>
+                    <!-- Months will be dynamically generated -->
                 </select>
                 <button onclick="handleLogout()" class="bg-red-700 hover:bg-red-800 text-xs font-bold p-2 px-3 rounded-xl text-white transition-all">
                     Sign Out
@@ -100,6 +98,31 @@
         let transactions = JSON.parse(localStorage.getItem('pro_transactions')) || [];
         let myChart = null;
 
+        // Generate month options (6 months back, current, 6 months forward)
+        function generateMonthOptions() {
+            const today = new Date();
+            const monthSelect = document.getElementById('monthFilter');
+            monthSelect.innerHTML = '';
+            
+            // Generate 6 months back to 6 months forward
+            for (let i = -6; i <= 6; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const monthName = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                
+                const option = document.createElement('option');
+                option.value = `${year}-${month}`;
+                option.textContent = monthName;
+                monthSelect.appendChild(option);
+                
+                // Set current month as selected
+                if (i === 0) {
+                    option.selected = true;
+                }
+            }
+        }
+
         function checkAuth() {
             const greeting = document.getElementById('userGreeting');
 
@@ -110,6 +133,7 @@
             }
             
             greeting.innerText = currentUser;
+            generateMonthOptions();
             updateUI();
             fetchLatestMarketInsights();
         }
@@ -128,6 +152,7 @@
             if (!desc || isNaN(amount)) return alert('Please fill in all fields.');
 
             const transaction = {
+                id: Date.now(), // Unique ID for deletion
                 desc,
                 amount,
                 category,
@@ -143,6 +168,14 @@
             document.getElementById('amount').value = '';
             
             updateUI();
+        }
+
+        function deleteTransaction(transactionId) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== transactionId);
+                localStorage.setItem('pro_transactions', JSON.stringify(transactions));
+                updateUI();
+            }
         }
 
         function updateUI() {
@@ -173,15 +206,20 @@
                 }
 
                 const li = document.createElement('li');
-                li.className = `flex justify-between py-2 text-sm items-center`;
+                li.className = `flex justify-between py-2 text-sm items-center hover:bg-gray-50 px-2 rounded`;
                 li.innerHTML = `
-                    <div>
+                    <div class="flex-1">
                         <p class="font-semibold text-gray-800">${t.desc}</p>
                         <p class="text-xs text-gray-500">${t.category}</p>
                     </div>
-                    <span class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-emerald-600'}">
-                        ${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount).toFixed(2)}
-                    </span>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-emerald-600'}">
+                            ${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount).toFixed(2)}
+                        </span>
+                        <button onclick="deleteTransaction(${t.id})" class="ml-2 p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs font-bold transition">
+                            ✕
+                        </button>
+                    </div>
                 `;
                 list.appendChild(li);
             });
