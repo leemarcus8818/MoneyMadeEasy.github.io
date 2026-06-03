@@ -1,24 +1,82 @@
-// Initialize local data
 let currentUser = localStorage.getItem('mme_logged_user') || null;
 let transactions = JSON.parse(localStorage.getItem('pro_transactions')) || [];
-let assetSnapshots = JSON.parse(localStorage.getItem('pro_asset_snapshots')) || [];
 let myChart = null;
 
 function formatCurrency(value) {
     return `$${Number(value || 0).toFixed(2)}`;
 }
 
-function formatSignedCurrency(value) {
-    const amount = Number(value || 0);
-    return `${amount >= 0 ? '+' : ''}$${amount.toFixed(2)}`;
-}
-
 function saveTransactions() {
     localStorage.setItem('pro_transactions', JSON.stringify(transactions));
 }
 
-function saveAssetSnapshots() {
-    localStorage.setItem('pro_asset_snapshots', JSON.stringify(assetSnapshots));
+function generateMonthOptionsIfNeeded() {
+    const monthSelect = document.getElementById('monthFilter');
+
+    if (!monthSelect) {
+        return;
+    }
+
+    if (monthSelect.options.length > 0) {
+        return;
+    }
+
+    const today = new Date();
+
+    for (let i = -6; i <= 6; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+
+        const option = document.createElement('option');
+        option.value = `${year}-${month}`;
+        option.textContent = date.toLocaleString('default', {
+            month: 'long',
+            year: 'numeric'
+        });
+
+        if (i === 0) {
+            option.selected = true;
+        }
+
+        monthSelect.appendChild(option);
+    }
+
+    monthSelect.addEventListener('change', updateUI);
+}
+
+function getSelectedMonth() {
+    const monthFilter = document.getElementById('monthFilter');
+
+    if (monthFilter && monthFilter.value) {
+        return monthFilter.value;
+    }
+
+    return new Date().toISOString().substring(0, 7);
+}
+
+function migrateOldTransactions() {
+    if (!currentUser) {
+        return;
+    }
+
+    let changed = false;
+
+    transactions = transactions.map(transaction => {
+        if (!transaction.owner) {
+            changed = true;
+            return {
+                ...transaction,
+                owner: currentUser
+            };
+        }
+
+        return transaction;
+    });
+
+    if (changed) {
+        saveTransactions();
+    }
 }
 
 function checkAuth() {
@@ -27,183 +85,9 @@ function checkAuth() {
         return;
     }
 
+    migrateOldTransactions();
+    generateMonthOptionsIfNeeded();
     updateUI();
-}
-
-function getSelectedMonth() {
-    return document.getElementById('monthFilter').value;
-}
-
-function getUserTransactions() {
-    return transactions.filter(t => t.owner === currentUser);
-}
-
-function getMonthlyTransactions(month) {
-    return transactions.filter(t =>
-        t.owner === currentUser &&
-        t.month === month
-    );
-}
-
-function calculateMonthTotals(monthlyData) {
-    let netBalance = 0;
-    let totalExpense = 0;
-    let totalIncome = 0;
-
-    let categories = {
-        Housing: 0,
-        Food: 0,
-        Transport: 0,
-        Leisure: 0,
-        Savings: 0
-    };
-
-    monthlyData.forEach(t => {
-        netBalance += Number(t.amount || 0);
-
-        if (t.amount < 0) {
-            totalExpense += Math.abs(t.amount);
-
-            if (categories[t.category] !== undefined) {
-                categories[t.category] += Math.abs(t.amount);
-            }
-        } else {
-            if (t.category === 'Income') {
-                totalIncome += t.amount;
-            }
-
-            if (t.category === 'Savings') {
-                categories.Savings += t.amount;
-            }
-        }
-    });
-
-    return {
-        netBalance,
-        totalExpense,
-        totalIncome,
-        categories
-    };
-}
-
-function calculateCumulativeLiquidAssets(month) {
-    const userTransactions = getUserTransactions();
-
-    return userTransactions
-        .filter(t => t.month <= month)
-        .reduce((total, t) => total + Number(t.amount || 0), 0);
-}
-
-function getOrCreateAssetSnapshot(month, endingAssets, monthNet) {
-    let snapshot = assetSnapshots.find(snapshot =>
-        snapshot.owner === currentUser &&
-        snapshot.month === month
-    );
-
-    if (!snapshot) {
-        snapshot = {
-            id: Date.now(),
-            owner: currentUser,
-            month,
-            beginningAssets: endingAssets - monthNet,
-            endingAssets,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        assetSnapshots.push(snapshot);
-    } else {
-        snapshot.endingAssets = endingAssets;
-        snapshot.updatedAt = new Date().toISOString();
-    }
-
-    saveAssetSnapshots();
-    return snapshot;
-}
-
-function updateAssetSnapshotFromBudget(month, netBalance) {
-    const endingLiquidAssets = calculateCumulativeLiquidAssets(month);
-
-    // Budgeting page only knows liquid assets.
-    // Dashboard can later add investment assets on top.
-    getOrCreateAssetSnapshot(month, endingLiquidAssets, netBalance);
-}
-
-function updateUI() {
-    if (!currentUser) {
-        return;
-    }
-
-    const list = document.getElementById('list');
-    const balance = document.getElementById('balance');
-    const totalExpenseText = document.getElementById('totalExpense');
-    const currentMonth = getSelectedMonth();
-
-    list.innerHTML = '';
-
-    const monthlyData = getMonthlyTransactions(currentMonth);
-    const {
-        netBalance,
-        totalExpense,
-        totalIncome,
-        categories
-    } = calculateMonthTotals(monthlyData);
-
-    if (monthlyData.length === 0) {
-        const emptyItem = document.createElement('li');
-        emptyItem.className = 'text-sm text-gray-500 text-center py-4';
-        emptyItem.textContent = 'No transactions logged for this month yet.';
-        list.appendChild(emptyItem);
-    }
-
-    monthlyData.forEach(t => {
-        const li = document.createElement('li');
-        li.className = 'flex justify-between py-2 text-sm items-center hover:bg-gray-50 px-2 rounded';
-
-        const leftDiv = document.createElement('div');
-
-        const desc = document.createElement('p');
-        desc.className = 'font-semibold text-emerald-950';
-        desc.textContent = t.desc;
-
-        const category = document.createElement('p');
-        category.className = 'text-xs text-emerald-600/70';
-        category.textContent = t.category;
-
-        leftDiv.appendChild(desc);
-        leftDiv.appendChild(category);
-
-        const rightDiv = document.createElement('div');
-        rightDiv.className = 'flex items-center space-x-2';
-
-        const amount = document.createElement('span');
-        amount.className = `font-bold ${t.amount < 0 ? 'text-red-500' : 'text-emerald-600'}`;
-        amount.textContent = `${t.amount < 0 ? '-' : '+'}${formatCurrency(Math.abs(t.amount))}`;
-
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'ml-2 p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs font-bold transition';
-        deleteButton.textContent = '✕';
-        deleteButton.onclick = () => deleteTransaction(t.id);
-
-        rightDiv.appendChild(amount);
-        rightDiv.appendChild(deleteButton);
-
-        li.appendChild(leftDiv);
-        li.appendChild(rightDiv);
-
-        list.appendChild(li);
-    });
-
-    balance.textContent = formatCurrency(netBalance);
-    balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`;
-
-    totalExpenseText.textContent = formatCurrency(totalExpense);
-
-    saveTransactions();
-
-    updateAssetSnapshotFromBudget(currentMonth, netBalance);
-    renderChart(categories, totalExpense);
-    generateAISuggestions(netBalance, totalExpense, totalIncome, categories);
 }
 
 function addTransaction() {
@@ -212,18 +96,22 @@ function addTransaction() {
         return;
     }
 
-    const desc = document.getElementById('desc').value.trim();
-    const amount = parseFloat(document.getElementById('amount').value);
-    const category = document.getElementById('category').value;
+    const descInput = document.getElementById('desc');
+    const amountInput = document.getElementById('amount');
+    const categoryInput = document.getElementById('category');
+
+    if (!descInput || !amountInput || !categoryInput) {
+        alert('Budget form elements are missing. Please check your HTML IDs.');
+        return;
+    }
+
+    const desc = descInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const category = categoryInput.value;
     const currentMonth = getSelectedMonth();
 
     if (!desc || isNaN(amount)) {
         alert('Please input a valid description and amount.');
-        return;
-    }
-
-    if (!currentMonth) {
-        alert('Please select a month.');
         return;
     }
 
@@ -240,8 +128,8 @@ function addTransaction() {
     transactions.push(transaction);
     saveTransactions();
 
-    document.getElementById('desc').value = '';
-    document.getElementById('amount').value = '';
+    descInput.value = '';
+    amountInput.value = '';
 
     updateUI();
 }
@@ -251,9 +139,120 @@ function deleteTransaction(transactionId) {
         return;
     }
 
-    transactions = transactions.filter(t => t.id !== transactionId);
+    transactions = transactions.filter(transaction => transaction.id !== transactionId);
     saveTransactions();
     updateUI();
+}
+
+function updateUI() {
+    if (!currentUser) {
+        return;
+    }
+
+    const list = document.getElementById('list');
+    const balance = document.getElementById('balance');
+    const totalExpenseText = document.getElementById('totalExpense');
+
+    if (!list || !balance || !totalExpenseText) {
+        console.error('Missing one or more required budgeting elements: list, balance, totalExpense.');
+        return;
+    }
+
+    const currentMonth = getSelectedMonth();
+
+    list.innerHTML = '';
+
+    const monthlyData = transactions.filter(transaction =>
+        transaction.owner === currentUser &&
+        transaction.month === currentMonth
+    );
+
+    let netBalance = 0;
+    let totalExpense = 0;
+    let totalIncome = 0;
+
+    const categories = {
+        Housing: 0,
+        Food: 0,
+        Transport: 0,
+        Leisure: 0,
+        Savings: 0
+    };
+
+    if (monthlyData.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'text-sm text-gray-500 text-center py-4';
+        emptyItem.textContent = 'No transactions logged for this month yet.';
+        list.appendChild(emptyItem);
+    }
+
+    monthlyData.forEach(transaction => {
+        const amount = Number(transaction.amount || 0);
+
+        netBalance += amount;
+
+        if (amount < 0) {
+            totalExpense += Math.abs(amount);
+
+            if (categories[transaction.category] !== undefined) {
+                categories[transaction.category] += Math.abs(amount);
+            }
+        } else {
+            if (transaction.category === 'Income') {
+                totalIncome += amount;
+            }
+
+            if (transaction.category === 'Savings') {
+                categories.Savings += amount;
+            }
+        }
+
+        const li = document.createElement('li');
+        li.className = 'flex justify-between py-2 text-sm items-center hover:bg-gray-50 px-2 rounded';
+
+        const leftDiv = document.createElement('div');
+
+        const desc = document.createElement('p');
+        desc.className = 'font-semibold text-emerald-950';
+        desc.textContent = transaction.desc;
+
+        const category = document.createElement('p');
+        category.className = 'text-xs text-emerald-600/70';
+        category.textContent = transaction.category;
+
+        leftDiv.appendChild(desc);
+        leftDiv.appendChild(category);
+
+        const rightDiv = document.createElement('div');
+        rightDiv.className = 'flex items-center space-x-2';
+
+        const amountText = document.createElement('span');
+        amountText.className = `font-bold ${amount < 0 ? 'text-red-500' : 'text-emerald-600'}`;
+        amountText.textContent = `${amount < 0 ? '-' : '+'}${formatCurrency(Math.abs(amount))}`;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'ml-2 p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs font-bold transition';
+        deleteButton.textContent = '✕';
+        deleteButton.onclick = function () {
+            deleteTransaction(transaction.id);
+        };
+
+        rightDiv.appendChild(amountText);
+        rightDiv.appendChild(deleteButton);
+
+        li.appendChild(leftDiv);
+        li.appendChild(rightDiv);
+
+        list.appendChild(li);
+    });
+
+    balance.textContent = formatCurrency(netBalance);
+    balance.className = `text-xl font-bold ${netBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`;
+
+    totalExpenseText.textContent = formatCurrency(totalExpense);
+
+    renderChart(categories, totalExpense);
+    generateAISuggestions(netBalance, totalExpense, totalIncome, categories);
 }
 
 function renderChart(categoryData, totalExpense) {
@@ -269,30 +268,33 @@ function renderChart(categoryData, totalExpense) {
         myChart.destroy();
     }
 
-    const labelsWithPercentages = [];
-    const chartValues = [];
+    const labels = [];
+    const values = [];
 
-    Object.keys(categoryData).forEach(cat => {
-        const val = categoryData[cat];
+    Object.keys(categoryData).forEach(category => {
+        const value = categoryData[category];
 
-        if (val > 0) {
-            const pct = totalExpense > 0 ? ((val / totalExpense) * 100).toFixed(0) : 0;
-            labelsWithPercentages.push(`${cat} (${pct}%)`);
-            chartValues.push(val);
+        if (value > 0) {
+            const percentage = totalExpense > 0
+                ? ((value / totalExpense) * 100).toFixed(0)
+                : 0;
+
+            labels.push(`${category} (${percentage}%)`);
+            values.push(value);
         }
     });
 
-    if (chartValues.length === 0) {
-        labelsWithPercentages.push('No Expenses');
-        chartValues.push(1);
+    if (labels.length === 0) {
+        labels.push('No Expenses');
+        values.push(1);
     }
 
     myChart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: labelsWithPercentages,
+            labels,
             datasets: [{
-                data: chartValues,
+                data: values,
                 backgroundColor: [
                     '#022c22',
                     '#065f46',
@@ -325,9 +327,14 @@ function renderChart(categoryData, totalExpense) {
 
 function generateAISuggestions(balance, expenses, income, cats) {
     const aiConsole = document.getElementById('aiConsole');
+
+    if (!aiConsole) {
+        return;
+    }
+
     aiConsole.innerHTML = '';
 
-    let insights = [];
+    const insights = [];
 
     if (balance < 0) {
         insights.push({
@@ -337,7 +344,7 @@ function generateAISuggestions(balance, expenses, income, cats) {
         });
     }
 
-    if (expenses > 0 && (cats.Leisure / expenses) > 0.20) {
+    if (expenses > 0 && cats.Leisure / expenses > 0.20) {
         insights.push({
             type: 'warning',
             title: 'High Leisure Spending',
@@ -345,11 +352,11 @@ function generateAISuggestions(balance, expenses, income, cats) {
         });
     }
 
-    if (income > 0 && (cats.Savings / income) < 0.20) {
+    if (income > 0 && cats.Savings / income < 0.20) {
         insights.push({
             type: 'info',
             title: 'Savings Opportunity',
-            text: 'Savings are below 20% of income this month. Consider increasing automatic savings if your budget allows.'
+            text: 'Savings are below 20% of income this month. Consider increasing savings if your budget allows.'
         });
     }
 
@@ -357,7 +364,7 @@ function generateAISuggestions(balance, expenses, income, cats) {
         insights.push({
             type: 'warning',
             title: 'Food Spending Check',
-            text: `Food spending is ${(cats.Food / expenses * 100).toFixed(0)}% of expenses. Review dining out or grocery habits.`
+            text: `Food spending is ${(cats.Food / expenses * 100).toFixed(0)}% of expenses.`
         });
     }
 
@@ -395,5 +402,4 @@ function generateAISuggestions(balance, expenses, income, cats) {
     });
 }
 
-// Start
 window.addEventListener('DOMContentLoaded', checkAuth);
