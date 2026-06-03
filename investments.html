@@ -1,114 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MoneyMadeEasy - Investments</title>
-    
+
     <!-- Tailwind CSS from jsDelivr CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Chart.js from jsDelivr CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
+
 <body class="bg-emerald-50 min-h-screen p-4 md:p-8">
 
-    <!-- MAIN APP CORE CONTENT -->
     <div id="appScreen" class="max-w-7xl mx-auto space-y-6">
-        
-        <!-- Header with Navigation -->
-        <header class="flex justify-between items-center bg-emerald-900 p-6 rounded-2xl shadow-sm text-white">
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center bg-emerald-900 p-6 rounded-2xl shadow-sm text-white">
             <div>
                 <h1 class="text-3xl font-black tracking-tight text-emerald-300">💰 MoneyMadeEasy</h1>
                 <p class="text-sm text-emerald-100">Investment Portfolio Tracker</p>
             </div>
+
             <div class="flex items-center space-x-3">
                 <a href="./dashboard.html" class="bg-emerald-700 hover:bg-emerald-800 text-xs font-bold p-2 px-4 rounded-xl text-white transition-all">
                     ← Dashboard
                 </a>
+
                 <button onclick="handleLogout()" class="bg-red-700 hover:bg-red-800 text-xs font-bold p-2 px-3 rounded-xl text-white transition-all">
                     Sign Out
                 </button>
             </div>
         </header>
 
-        <!-- API KEY SETUP NOTICE -->
+        <!-- API Key Notice -->
         <div id="apiKeyNotice" class="bg-blue-50 border-2 border-blue-400 rounded-2xl p-6 shadow-md hidden">
             <div class="flex items-start space-x-4">
                 <span class="text-3xl">ℹ️</span>
+
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold text-blue-900 mb-3">API Key Required for Live Stock Prices</h3>
+                    <h3 class="text-lg font-bold text-blue-900 mb-3">Optional: Enable Live Stock Prices</h3>
+
                     <div class="space-y-3 text-sm text-blue-900">
-                        <p>To enable real-time stock price updates, you need to:</p>
+                        <p>
+                            This app currently uses demo price changes unless you add your own Finnhub API key.
+                        </p>
+
                         <ol class="list-decimal list-inside space-y-2 ml-2">
-                            <li>Get a free API key from <a href="https://finnhub.io" target="_blank" class="font-bold text-blue-700 underline">Finnhub.io</a></li>
-                            <li>Open the browser console (F12) and paste: <code class="bg-blue-100 p-1 rounded">localStorage.setItem('finnhub_api_key', 'YOUR_API_KEY')</code></li>
-                            <li>Refresh the page</li>
+                            <li>
+                                Get a free API key from
+                                <a href="https://finnhub.io" target="_blank" class="font-bold text-blue-700 underline">Finnhub.io</a>
+                            </li>
+
+                            <li>
+                                Open the browser console using F12 and paste:
+                                <code class="bg-blue-100 p-1 rounded block mt-1 break-all">
+                                    localStorage.setItem('finnhub_api_key', 'YOUR_API_KEY')
+                                </code>
+                            </li>
+
+                            <li>Refresh this page.</li>
                         </ol>
-                        <p class="mt-4"><strong>Currently using demo prices (random variance).</strong> Real prices will load once API key is configured.</p>
+
+                        <p class="mt-4 font-semibold">
+                            Demo mode creates consistent sample prices for testing. It should not be used for real investment decisions.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- IMPORTANT DISCLAIMER -->
+        <!-- Disclaimer -->
         <div class="bg-red-50 border-2 border-red-400 rounded-2xl p-6 shadow-md">
             <div class="flex items-start space-x-4">
                 <span class="text-3xl">⚠️</span>
+
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold text-red-900 mb-3">Important Disclaimer - AI Portfolio Advisor</h3>
-                    
+                    <h3 class="text-lg font-bold text-red-900 mb-3">
+                        Important Disclaimer - Investment Portfolio Tool
+                    </h3>
+
                     <div class="space-y-3 text-sm text-red-900">
-                        <p class="font-semibold">🤖 <span class="font-bold">This tool uses Artificial Intelligence (AI)</span> to provide informational insights and educational content only.</p>
-                        
-                        <p><span class="font-bold">⚖️ NOT FINANCIAL ADVICE:</span> The AI Portfolio Advisor does <span class="font-bold underline">NOT</span> provide regulated financial advice. Consult a licensed financial advisor before making investment decisions.</p>
-                        
-                        <p><span class="font-bold">🎲 PROBABILISTIC OUTPUTS:</span> AI-generated suggestions are based on probabilistic models and generalized algorithms. They may contain errors or outdated information.</p>
-                        
-                        <p><span class="font-bold">🔍 INDEPENDENT VERIFICATION REQUIRED:</span> You must conduct your own independent research, verification, and due diligence before making any investment decisions.</p>
-                        
-                        <p><span class="font-bold">⚡ RISKS:</span> Past performance does not guarantee future results. All investments carry risk, including potential loss of principal. Market conditions change rapidly.</p>
-                        
-                        <p><span class="font-bold">👨‍⚖️ PROFESSIONAL CONSULTATION:</span> Before making significant investment decisions, consult with qualified professionals including financial advisors, tax advisors, and legal counsel.</p>
-                        
-                        <p class="bg-red-100 p-2 rounded border border-red-300 font-bold italic">By using this tool, you acknowledge that you understand these limitations and accept full responsibility for your investment decisions.</p>
+                        <p class="font-semibold">
+                            🤖 This tool provides informational insights and educational content only.
+                        </p>
+
+                        <p>
+                            <span class="font-bold">⚖️ NOT FINANCIAL ADVICE:</span>
+                            This app does not provide regulated financial advice. Consult a licensed financial advisor before making investment decisions.
+                        </p>
+
+                        <p>
+                            <span class="font-bold">🎲 ESTIMATED OUTPUTS:</span>
+                            Demo prices, portfolio suggestions, and insights may be incomplete, inaccurate, or outdated.
+                        </p>
+
+                        <p>
+                            <span class="font-bold">🔍 INDEPENDENT VERIFICATION REQUIRED:</span>
+                            You must conduct your own research, verification, and due diligence before making investment decisions.
+                        </p>
+
+                        <p>
+                            <span class="font-bold">⚡ RISKS:</span>
+                            Past performance does not guarantee future results. All investments carry risk, including possible loss of principal.
+                        </p>
+
+                        <p class="bg-red-100 p-2 rounded border border-red-300 font-bold italic">
+                            By using this tool, you acknowledge that you accept full responsibility for your investment decisions.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- View Toggle Buttons -->
-        <div class="flex space-x-3 bg-white p-4 rounded-2xl shadow border border-gray-100">
+        <div class="flex flex-wrap gap-3 bg-white p-4 rounded-2xl shadow border border-gray-100">
             <button onclick="switchView('portfolio')" id="btn-portfolio" class="px-4 py-2 rounded-xl font-bold bg-emerald-700 text-white hover:bg-emerald-800 transition-all">
                 📊 Portfolio Overview
             </button>
+
             <button onclick="switchView('monthly')" id="btn-monthly" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
                 📅 Monthly Holdings
             </button>
+
             <button onclick="switchView('all-time')" id="btn-all-time" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
                 📈 All-Time Holdings
             </button>
+
             <button onclick="switchView('news')" id="btn-news" class="px-4 py-2 rounded-xl font-bold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all">
-                📰 Market News
+                📰 Demo Market News
             </button>
         </div>
 
-        <!-- PORTFOLIO VIEW (DEFAULT) -->
+        <!-- Portfolio View -->
         <div id="view-portfolio" class="space-y-6">
-            <!-- Main Grid -->
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Column 1: Add Investment -->
+
+                <!-- Add Investment -->
                 <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
                     <h2 class="text-xl font-bold text-gray-800">Add Investment</h2>
+
                     <div class="space-y-3">
-                        <input id="ticker" type="text" placeholder="Ticker (e.g., AAPL, MSFT)" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                        
-                        <input id="shares" type="number" placeholder="Number of Shares" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                        
-                        <input id="purchasePrice" type="number" placeholder="Purchase Price ($)" step="0.01" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
-                        
-                        <select id="sector" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                        <input id="ticker" type="text" placeholder="Ticker e.g. AAPL, MSFT"
+                            class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" />
+
+                        <input id="shares" type="number" placeholder="Number of Shares" step="0.01" min="0"
+                            class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" />
+
+                        <input id="purchasePrice" type="number" placeholder="Purchase Price ($)" step="0.01" min="0"
+                            class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" />
+
+                        <select id="sector"
+                            class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
                             <option value="">Select Sector</option>
                             <option value="Technology">💻 Technology</option>
                             <option value="Healthcare">🏥 Healthcare</option>
@@ -124,33 +169,37 @@
                             <option value="ETF">📊 ETF/Mutual Fund</option>
                         </select>
 
-                        <button onclick="addInvestment()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">Add to Portfolio</button>
-                        <p class="text-xs text-gray-500 text-center">💡 Current prices are fetched live. Purchase price is what you paid.</p>
+                        <button onclick="addInvestment()"
+                            class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">
+                            Add to Portfolio
+                        </button>
+
+                        <p class="text-xs text-gray-500 text-center">
+                            💡 Current prices use live data if configured, otherwise demo estimates.
+                        </p>
                     </div>
 
-                    <hr class="border-gray-100 my-4">
+                    <hr class="border-gray-100 my-4" />
+
                     <h3 class="font-bold text-gray-700 mb-2">Your Holdings</h3>
                     <ul id="investmentList" class="divide-y divide-gray-100 max-h-96 overflow-y-auto pr-1 text-sm"></ul>
                 </div>
 
-                <!-- Column 2: Portfolio Analysis -->
+                <!-- Portfolio Analysis -->
                 <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
                     <h2 class="text-xl font-bold text-gray-800 mb-1">Portfolio Overview</h2>
-                    
-                    <!-- Total Value -->
+
                     <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-                        <p class="text-xs text-gray-500 mb-1">Total Portfolio Value (Current)</p>
+                        <p class="text-xs text-gray-500 mb-1">Total Portfolio Value</p>
                         <p id="totalValue" class="text-3xl font-black text-emerald-700">$0.00</p>
                     </div>
 
-                    <!-- Gain/Loss -->
                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
                         <p class="text-xs text-gray-500 mb-1">Total Gain/Loss</p>
                         <p id="totalGainLoss" class="text-2xl font-black text-blue-700">+$0.00</p>
                         <p id="totalReturnPercent" class="text-xs text-gray-600">(+0.00%)</p>
                     </div>
 
-                    <!-- Sector Chart -->
                     <div class="mt-4">
                         <p class="text-xs font-bold text-gray-600 mb-2">Sector Distribution</p>
                         <div class="w-full relative h-64">
@@ -158,45 +207,47 @@
                         </div>
                     </div>
 
-                    <!-- Top Holdings -->
                     <div class="mt-4 bg-gray-50 p-3 rounded-xl">
                         <p class="text-xs font-bold text-gray-600 mb-2">Top 3 Holdings</p>
                         <ul id="topHoldings" class="space-y-2 text-xs"></ul>
                     </div>
                 </div>
 
-                <!-- Column 3: AI Suggestions & Insights -->
+                <!-- Smart Portfolio Assistant -->
                 <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col space-y-4">
                     <div class="flex items-center space-x-2">
                         <span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">🤖</span>
-                        <h2 class="text-xl font-bold text-gray-800">AI Portfolio Advisor</h2>
+                        <h2 class="text-xl font-bold text-gray-800">Smart Portfolio Assistant</h2>
                     </div>
 
                     <div class="bg-orange-50 border border-orange-300 p-2 rounded-lg">
-                        <p class="text-xs text-orange-900"><span class="font-bold">📌 Informational Only:</span> These suggestions are AI-generated insights for educational purposes. They do not constitute financial advice.</p>
+                        <p class="text-xs text-orange-900">
+                            <span class="font-bold">📌 Informational Only:</span>
+                            These are rule-based educational insights, not financial advice.
+                        </p>
                     </div>
 
                     <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl">
-                        <p class="text-xs font-bold text-blue-800 mb-2">Recommended Allocation</p>
+                        <p class="text-xs font-bold text-blue-800 mb-2">Example Target Allocation</p>
                         <div id="aiSuggestions" class="space-y-2 text-xs text-gray-700"></div>
                     </div>
 
                     <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-xl">
-                        <p class="text-xs font-bold text-yellow-800 mb-2">⚠️ Insights</p>
+                        <p class="text-xs font-bold text-yellow-800 mb-2">⚠️ Portfolio Insights</p>
                         <div id="aiInsights" class="space-y-2 text-xs text-gray-700"></div>
                     </div>
 
                     <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl">
-                        <p class="text-xs font-bold text-purple-800 mb-2">📈 Performance Tips</p>
+                        <p class="text-xs font-bold text-purple-800 mb-2">📈 General Tips</p>
                         <div id="aiTips" class="space-y-1 text-xs text-gray-700"></div>
                     </div>
                 </div>
-
             </div>
 
             <!-- Detailed Holdings Table -->
             <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Detailed Holdings</h2>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead class="bg-emerald-50 border-b border-gray-200">
@@ -213,29 +264,33 @@
                                 <th class="text-center p-3 font-bold text-gray-700">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="holdingsTable" class="divide-y divide-gray-200">
-                        </tbody>
+
+                        <tbody id="holdingsTable" class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- MONTHLY HOLDINGS VIEW -->
+        <!-- Monthly Holdings View -->
         <div id="view-monthly" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Monthly Investment Holdings</h2>
+
                 <div class="relative h-80 mb-4">
                     <canvas id="monthlyChart"></canvas>
                 </div>
+
                 <div id="monthlyStats" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
                         <p class="text-xs text-gray-600">Average Monthly Investment</p>
                         <p id="avgMonthly" class="text-2xl font-bold text-emerald-700">$0.00</p>
                     </div>
+
                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                        <p class="text-xs text-gray-600">Total Invested (All Time)</p>
+                        <p class="text-xs text-gray-600">Total Invested</p>
                         <p id="totalInvested" class="text-2xl font-bold text-blue-700">$0.00</p>
                     </div>
+
                     <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
                         <p class="text-xs text-gray-600">Months Active</p>
                         <p id="monthsActive" class="text-2xl font-bold text-purple-700">0</p>
@@ -244,10 +299,11 @@
             </div>
         </div>
 
-        <!-- ALL-TIME HOLDINGS VIEW -->
+        <!-- All-Time Holdings View -->
         <div id="view-all-time" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">All-Time Investment Holdings</h2>
+
                 <div id="allTimeTable" class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead class="bg-emerald-50 border-b border-gray-200">
@@ -261,15 +317,17 @@
                                 <th class="text-left p-3 font-bold text-gray-700">Sector</th>
                             </tr>
                         </thead>
-                        <tbody id="allTimeTableBody" class="divide-y divide-gray-200">
-                        </tbody>
+
+                        <tbody id="allTimeTableBody" class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div class="bg-green-50 p-4 rounded-xl border border-green-200">
                         <p class="text-xs text-gray-600">Total All-Time Investment</p>
                         <p id="allTimeTotal" class="text-2xl font-bold text-green-700">$0.00</p>
                     </div>
+
                     <div class="bg-green-50 p-4 rounded-xl border border-green-200">
                         <p class="text-xs text-gray-600">Total All-Time Return</p>
                         <p id="allTimeReturn" class="text-2xl font-bold text-green-700">+$0.00</p>
@@ -278,43 +336,72 @@
             </div>
         </div>
 
-        <!-- MARKET NEWS VIEW -->
+        <!-- Demo News View -->
         <div id="view-news" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow border border-gray-100">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">📰 Latest Financial & Market News</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">📰 Demo Financial & Market News</h2>
+                <p class="text-xs text-gray-500 mb-4">
+                    This section uses sample headlines for demonstration only. It does not currently fetch live news.
+                </p>
+
                 <div id="newsFeed" class="space-y-4 max-h-96 overflow-y-auto">
-                    <p class="text-gray-600 text-center py-8">Loading latest market news...</p>
+                    <p class="text-gray-600 text-center py-8">Loading demo market news...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- APPLICATION ENGINE -->
     <script>
         let currentUser = localStorage.getItem('mme_logged_user') || null;
         let investments = JSON.parse(localStorage.getItem('pro_investments')) || [];
+
         let sectorChart = null;
         let monthlyChart = null;
         let currentView = 'portfolio';
-        let liveStockPrices = {};
-        let finnhubApiKey = localStorage.getItem('finnhub_api_key') || null;
-        let priceCache = {}; // Cache prices for consistent display
-        let lastPriceFetchTime = {}; // Track when we last fetched each ticker
 
-        // Cache duration in milliseconds (5 minutes)
+        let finnhubApiKey = localStorage.getItem('finnhub_api_key') || null;
+        let priceCache = {};
+        let lastPriceFetchTime = {};
+
         const CACHE_DURATION = 5 * 60 * 1000;
+
+        function formatCurrency(value) {
+            return `$${Number(value || 0).toFixed(2)}`;
+        }
+
+        function formatSignedCurrency(value) {
+            const amount = Number(value || 0);
+            return `${amount >= 0 ? '+' : ''}$${amount.toFixed(2)}`;
+        }
+
+        function isValidTicker(ticker) {
+            return /^[A-Z0-9.-]{1,12}$/.test(ticker);
+        }
+
+        function createElement(tag, className, textContent) {
+            const element = document.createElement(tag);
+
+            if (className) {
+                element.className = className;
+            }
+
+            if (textContent !== undefined) {
+                element.textContent = textContent;
+            }
+
+            return element;
+        }
 
         function checkAuth() {
             if (!currentUser) {
                 window.location.href = './index.html';
                 return;
             }
-            
-            // Show API key notice if not configured
+
             if (!finnhubApiKey) {
                 document.getElementById('apiKeyNotice').classList.remove('hidden');
             }
-            
+
             updatePortfolioDisplay();
             fetchLatestNews();
         }
@@ -326,86 +413,78 @@
 
         function switchView(view) {
             currentView = view;
-            
-            // Hide all views
-            document.getElementById('view-portfolio').classList.add('hidden');
-            document.getElementById('view-monthly').classList.add('hidden');
-            document.getElementById('view-all-time').classList.add('hidden');
-            document.getElementById('view-news').classList.add('hidden');
-            
-            // Reset button styles
-            document.getElementById('btn-portfolio').classList.remove('bg-emerald-700', 'text-white');
-            document.getElementById('btn-portfolio').classList.add('bg-gray-200', 'text-gray-700');
-            document.getElementById('btn-monthly').classList.remove('bg-emerald-700', 'text-white');
-            document.getElementById('btn-monthly').classList.add('bg-gray-200', 'text-gray-700');
-            document.getElementById('btn-all-time').classList.remove('bg-emerald-700', 'text-white');
-            document.getElementById('btn-all-time').classList.add('bg-gray-200', 'text-gray-700');
-            document.getElementById('btn-news').classList.remove('bg-emerald-700', 'text-white');
-            document.getElementById('btn-news').classList.add('bg-gray-200', 'text-gray-700');
-            
-            // Show selected view and highlight button
-            if (view === 'portfolio') {
-                document.getElementById('view-portfolio').classList.remove('hidden');
-                document.getElementById('btn-portfolio').classList.add('bg-emerald-700', 'text-white');
-                document.getElementById('btn-portfolio').classList.remove('bg-gray-200', 'text-gray-700');
-            } else if (view === 'monthly') {
-                document.getElementById('view-monthly').classList.remove('hidden');
-                document.getElementById('btn-monthly').classList.add('bg-emerald-700', 'text-white');
-                document.getElementById('btn-monthly').classList.remove('bg-gray-200', 'text-gray-700');
+
+            const views = ['portfolio', 'monthly', 'all-time', 'news'];
+
+            views.forEach(viewName => {
+                document.getElementById(`view-${viewName}`).classList.add('hidden');
+
+                const button = document.getElementById(`btn-${viewName}`);
+                button.classList.remove('bg-emerald-700', 'text-white');
+                button.classList.add('bg-gray-200', 'text-gray-700');
+            });
+
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+
+            const activeButton = document.getElementById(`btn-${view}`);
+            activeButton.classList.add('bg-emerald-700', 'text-white');
+            activeButton.classList.remove('bg-gray-200', 'text-gray-700');
+
+            if (view === 'monthly') {
                 updateMonthlyChart();
-            } else if (view === 'all-time') {
-                document.getElementById('view-all-time').classList.remove('hidden');
-                document.getElementById('btn-all-time').classList.add('bg-emerald-700', 'text-white');
-                document.getElementById('btn-all-time').classList.remove('bg-gray-200', 'text-gray-700');
+            }
+
+            if (view === 'all-time') {
                 updateAllTimeView();
-            } else if (view === 'news') {
-                document.getElementById('view-news').classList.remove('hidden');
-                document.getElementById('btn-news').classList.add('bg-emerald-700', 'text-white');
-                document.getElementById('btn-news').classList.remove('bg-gray-200', 'text-gray-700');
             }
         }
 
-        async function fetchLivePrice(ticker) {
-            // Check if we have a cached price that's still valid
-            if (priceCache[ticker] && lastPriceFetchTime[ticker]) {
-                const timeSinceLastFetch = Date.now() - lastPriceFetchTime[ticker];
+        async function fetchLivePrice(ticker, purchasePrice) {
+            const cachedPrice = priceCache[ticker];
+            const cachedTime = lastPriceFetchTime[ticker];
+
+            if (cachedPrice && cachedTime) {
+                const timeSinceLastFetch = Date.now() - cachedTime;
+
                 if (timeSinceLastFetch < CACHE_DURATION) {
-                    return priceCache[ticker];
+                    return cachedPrice;
                 }
             }
 
-            // Try to fetch real price from Finnhub API
             if (finnhubApiKey) {
                 try {
                     const response = await fetch(
-                        `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${finnhubApiKey}`
+                        `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${encodeURIComponent(finnhubApiKey)}`
                     );
+
                     const data = await response.json();
-                    
-                    if (data && data.c && data.c > 0) {
+
+                    if (data && typeof data.c === 'number' && data.c > 0) {
                         priceCache[ticker] = data.c;
                         lastPriceFetchTime[ticker] = Date.now();
                         return data.c;
                     }
                 } catch (error) {
-                    console.error(`Failed to fetch real price for ${ticker}:`, error);
+                    console.error(`Failed to fetch live price for ${ticker}:`, error);
                 }
             }
 
-            // Fallback: generate consistent demo price based on ticker
-            // This ensures the same ticker always shows the same price during a session
             if (!priceCache[ticker]) {
-                // Create a consistent random value based on the ticker string
                 let hash = 0;
+
                 for (let i = 0; i < ticker.length; i++) {
                     hash = ((hash << 5) - hash) + ticker.charCodeAt(i);
-                    hash = hash & hash; // Convert to 32bit integer
+                    hash |= 0;
                 }
+
                 const seededRandom = Math.abs(Math.sin(hash) * 10000) % 1;
-                priceCache[ticker] = 0.92 + (seededRandom * 0.16); // Range: 0.92 to 1.08
+                const demoMultiplier = 0.92 + seededRandom * 0.16;
+                const basePrice = Number(purchasePrice) > 0 ? Number(purchasePrice) : 100;
+
+                priceCache[ticker] = basePrice * demoMultiplier;
                 lastPriceFetchTime[ticker] = Date.now();
             }
-            
+
             return priceCache[ticker];
         }
 
@@ -420,6 +499,11 @@
                 return;
             }
 
+            if (!isValidTicker(ticker)) {
+                alert('Please enter a valid ticker symbol. Use letters, numbers, dots, or hyphens only.');
+                return;
+            }
+
             if (shares <= 0 || purchasePrice <= 0) {
                 alert('Shares and purchase price must be positive numbers.');
                 return;
@@ -431,7 +515,7 @@
                 shares,
                 purchasePrice,
                 sector,
-                dateAdded: new Date().toLocaleDateString(),
+                dateAdded: new Date().toISOString(),
                 month: new Date().toISOString().substring(0, 7),
                 owner: currentUser
             };
@@ -448,98 +532,143 @@
         }
 
         function deleteInvestment(investmentId) {
-            if (confirm('Delete this investment from your portfolio?')) {
-                investments = investments.filter(i => i.id !== investmentId);
-                localStorage.setItem('pro_investments', JSON.stringify(investments));
-                updatePortfolioDisplay();
+            if (!confirm('Delete this investment from your portfolio?')) {
+                return;
+            }
+
+            investments = investments.filter(investment => investment.id !== investmentId);
+            localStorage.setItem('pro_investments', JSON.stringify(investments));
+
+            updatePortfolioDisplay();
+
+            if (currentView === 'monthly') {
+                updateMonthlyChart();
+            }
+
+            if (currentView === 'all-time') {
+                updateAllTimeView();
             }
         }
 
         async function updatePortfolioDisplay() {
-            const userInvestments = investments.filter(i => i.owner === currentUser);
+            const userInvestments = investments.filter(investment => investment.owner === currentUser);
 
-            // Update Investment List
-            const list = document.getElementById('investmentList');
-            list.innerHTML = '';
-            
+            for (const investment of userInvestments) {
+                await fetchLivePrice(investment.ticker, investment.purchasePrice);
+            }
+
             let totalCost = 0;
             let totalCurrentValue = 0;
 
-            // Fetch all prices first to ensure consistency
-            for (const inv of userInvestments) {
-                await fetchLivePrice(inv.ticker);
-            }
-
-            userInvestments.forEach(inv => {
-                const priceMultiplier = priceCache[inv.ticker] || (0.95 + Math.random() * 0.1);
-                const currentPrice = inv.purchasePrice * priceMultiplier;
-                const marketValue = inv.shares * currentPrice;
-                const cost = inv.shares * inv.purchasePrice;
-                totalCost += cost;
-                totalCurrentValue += marketValue;
-
-                const li = document.createElement('li');
-                li.className = 'flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded';
-                li.innerHTML = `
-                    <div>
-                        <p class="font-bold text-gray-800">${inv.ticker}</p>
-                        <p class="text-xs text-gray-500">${inv.shares} @ $${inv.purchasePrice.toFixed(2)}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-emerald-600">$${marketValue.toFixed(2)}</p>
-                        <button onclick="deleteInvestment(${inv.id})" class="text-red-500 hover:text-red-700 text-xs font-bold mt-1">Delete</button>
-                    </div>
-                `;
-                list.appendChild(li);
+            userInvestments.forEach(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+                totalCost += investment.shares * investment.purchasePrice;
+                totalCurrentValue += investment.shares * currentPrice;
             });
 
-            // Calculate totals
-            document.getElementById('totalValue').innerText = `$${totalCurrentValue.toFixed(2)}`;
-            
-            const gainLoss = totalCurrentValue - totalCost;
-            const returnPercent = totalCost > 0 ? (gainLoss / totalCost * 100) : 0;
-            
-            document.getElementById('totalGainLoss').innerText = `${gainLoss >= 0 ? '+' : ''}$${gainLoss.toFixed(2)}`;
-            document.getElementById('totalGainLoss').className = `text-2xl font-black ${gainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`;
-            document.getElementById('totalReturnPercent').innerText = `(${returnPercent >= 0 ? '+' : ''}${returnPercent.toFixed(2)}%)`;
-
-            // Update sector distribution
+            updateInvestmentList(userInvestments);
+            updatePortfolioTotals(totalCost, totalCurrentValue);
             updateSectorChart(userInvestments);
-
-            // Update top holdings
             updateTopHoldings(userInvestments);
-
-            // Update detailed table
             updateHoldingsTable(userInvestments, totalCurrentValue);
+            generatePortfolioSuggestions(userInvestments, totalCurrentValue);
+        }
 
-            // Generate AI suggestions
-            generateAISuggestions(userInvestments, totalCurrentValue);
+        function updateInvestmentList(userInvestments) {
+            const list = document.getElementById('investmentList');
+            list.innerHTML = '';
+
+            if (userInvestments.length === 0) {
+                const emptyMessage = createElement('li', 'text-gray-500 text-center py-6', 'No investments added yet.');
+                list.appendChild(emptyMessage);
+                return;
+            }
+
+            userInvestments.forEach(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+                const marketValue = investment.shares * currentPrice;
+
+                const li = createElement('li', 'flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded');
+
+                const leftDiv = createElement('div');
+                const ticker = createElement('p', 'font-bold text-gray-800', investment.ticker);
+                const detail = createElement('p', 'text-xs text-gray-500', `${investment.shares.toFixed(2)} @ ${formatCurrency(investment.purchasePrice)}`);
+
+                leftDiv.appendChild(ticker);
+                leftDiv.appendChild(detail);
+
+                const rightDiv = createElement('div', 'text-right');
+                const value = createElement('p', 'font-bold text-emerald-600', formatCurrency(marketValue));
+                const deleteButton = createElement('button', 'text-red-500 hover:text-red-700 text-xs font-bold mt-1', 'Delete');
+
+                deleteButton.onclick = () => deleteInvestment(investment.id);
+
+                rightDiv.appendChild(value);
+                rightDiv.appendChild(deleteButton);
+
+                li.appendChild(leftDiv);
+                li.appendChild(rightDiv);
+
+                list.appendChild(li);
+            });
+        }
+
+        function updatePortfolioTotals(totalCost, totalCurrentValue) {
+            const gainLoss = totalCurrentValue - totalCost;
+            const returnPercent = totalCost > 0 ? (gainLoss / totalCost) * 100 : 0;
+
+            document.getElementById('totalValue').textContent = formatCurrency(totalCurrentValue);
+
+            const gainLossElement = document.getElementById('totalGainLoss');
+            gainLossElement.textContent = formatSignedCurrency(gainLoss);
+            gainLossElement.className = `text-2xl font-black ${gainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`;
+
+            document.getElementById('totalReturnPercent').textContent =
+                `(${returnPercent >= 0 ? '+' : ''}${returnPercent.toFixed(2)}%)`;
         }
 
         function updateSectorChart(userInvestments) {
             const sectorData = {};
-            userInvestments.forEach(inv => {
-                const priceMultiplier = priceCache[inv.ticker] || (0.95 + Math.random() * 0.1);
-                const currentPrice = inv.purchasePrice * priceMultiplier;
-                if (!sectorData[inv.sector]) sectorData[inv.sector] = 0;
-                sectorData[inv.sector] += inv.shares * currentPrice;
+
+            userInvestments.forEach(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+                const value = investment.shares * currentPrice;
+
+                sectorData[investment.sector] = (sectorData[investment.sector] || 0) + value;
             });
 
             const ctx = document.getElementById('sectorChart');
-            if (!ctx) return;
 
-            if (sectorChart) sectorChart.destroy();
+            if (!ctx) {
+                return;
+            }
+
+            if (sectorChart) {
+                sectorChart.destroy();
+            }
+
+            const labels = Object.keys(sectorData);
+            const values = Object.values(sectorData);
 
             sectorChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(sectorData),
+                    labels: labels.length ? labels : ['No Data'],
                     datasets: [{
-                        data: Object.values(sectorData),
+                        data: values.length ? values : [1],
                         backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                            '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF9F40',
-                            '#36A2EB', '#FFCE56'
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40',
+                            '#C9CBCF',
+                            '#10b981',
+                            '#f97316',
+                            '#6366f1',
+                            '#14b8a6',
+                            '#eab308'
                         ],
                         borderColor: '#fff',
                         borderWidth: 2
@@ -547,11 +676,15 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { font: { size: 10 } }
+                            labels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
                         }
                     }
                 }
@@ -562,11 +695,17 @@
             const topHoldings = document.getElementById('topHoldings');
             topHoldings.innerHTML = '';
 
-            const holdingsWithValue = userInvestments.map(inv => {
-                const priceMultiplier = priceCache[inv.ticker] || (0.95 + Math.random() * 0.1);
+            if (userInvestments.length === 0) {
+                topHoldings.appendChild(createElement('li', 'text-gray-500', 'No holdings yet.'));
+                return;
+            }
+
+            const holdingsWithValue = userInvestments.map(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+
                 return {
-                    ...inv,
-                    value: inv.shares * inv.purchasePrice * priceMultiplier
+                    ...investment,
+                    value: investment.shares * currentPrice
                 };
             });
 
@@ -574,9 +713,9 @@
                 .sort((a, b) => b.value - a.value)
                 .slice(0, 3);
 
-            sorted.forEach(inv => {
-                const li = document.createElement('li');
-                li.innerHTML = `<p><span class="font-bold">${inv.ticker}</span> - $${inv.value.toFixed(2)}</p>`;
+            sorted.forEach(investment => {
+                const li = createElement('li');
+                li.textContent = `${investment.ticker} - ${formatCurrency(investment.value)}`;
                 topHoldings.appendChild(li);
             });
         }
@@ -585,54 +724,85 @@
             const tbody = document.getElementById('holdingsTable');
             tbody.innerHTML = '';
 
-            userInvestments.forEach(inv => {
-                const priceMultiplier = priceCache[inv.ticker] || (0.95 + Math.random() * 0.1);
-                const currentPrice = inv.purchasePrice * priceMultiplier;
-                const currentValue = inv.shares * currentPrice;
-                const gainLoss = currentValue - (inv.shares * inv.purchasePrice);
-                const returnPercent = ((gainLoss / (inv.shares * inv.purchasePrice)) * 100).toFixed(2);
-                const percentage = totalValue > 0 ? ((currentValue / totalValue) * 100).toFixed(2) : 0;
+            if (userInvestments.length === 0) {
+                const tr = document.createElement('tr');
+                const td = createElement('td', 'p-6 text-center text-gray-500', 'No holdings to display.');
+                td.colSpan = 10;
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            userInvestments.forEach(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+                const currentValue = investment.shares * currentPrice;
+                const cost = investment.shares * investment.purchasePrice;
+                const gainLoss = currentValue - cost;
+                const returnPercent = cost > 0 ? (gainLoss / cost) * 100 : 0;
+                const percentage = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
 
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-emerald-700">${inv.ticker}</td>
-                    <td class="p-3">${inv.shares.toFixed(2)}</td>
-                    <td class="p-3">$${inv.purchasePrice.toFixed(2)}</td>
-                    <td class="p-3">$${currentPrice.toFixed(2)}</td>
-                    <td class="p-3 font-bold text-gray-800">$${currentValue.toFixed(2)}</td>
-                    <td class="p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}">${gainLoss >= 0 ? '+' : ''}$${gainLoss.toFixed(2)}</td>
-                    <td class="p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}">${returnPercent >= 0 ? '+' : ''}${returnPercent}%</td>
-                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">${percentage}%</span></td>
-                    <td class="p-3 text-gray-600">${inv.sector}</td>
-                    <td class="p-3 text-center"><button onclick="deleteInvestment(${inv.id})" class="text-red-600 hover:text-red-800 font-bold text-sm">✕</button></td>
-                `;
+
+                const cells = [
+                    { text: investment.ticker, className: 'p-3 font-bold text-emerald-700' },
+                    { text: investment.shares.toFixed(2), className: 'p-3' },
+                    { text: formatCurrency(investment.purchasePrice), className: 'p-3' },
+                    { text: formatCurrency(currentPrice), className: 'p-3' },
+                    { text: formatCurrency(currentValue), className: 'p-3 font-bold text-gray-800' },
+                    {
+                        text: formatSignedCurrency(gainLoss),
+                        className: `p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`
+                    },
+                    {
+                        text: `${returnPercent >= 0 ? '+' : ''}${returnPercent.toFixed(2)}%`,
+                        className: `p-3 font-bold ${gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`
+                    },
+                    { text: `${percentage.toFixed(2)}%`, className: 'p-3' },
+                    { text: investment.sector, className: 'p-3 text-gray-600' }
+                ];
+
+                cells.forEach(cell => {
+                    const td = createElement('td', cell.className, cell.text);
+                    tr.appendChild(td);
+                });
+
+                const actionTd = createElement('td', 'p-3 text-center');
+                const deleteButton = createElement('button', 'text-red-600 hover:text-red-800 font-bold text-sm', '✕');
+
+                deleteButton.onclick = () => deleteInvestment(investment.id);
+
+                actionTd.appendChild(deleteButton);
+                tr.appendChild(actionTd);
+
                 tbody.appendChild(tr);
             });
         }
 
         function updateMonthlyChart() {
-            const userInvestments = investments.filter(i => i.owner === currentUser);
-            
-            // Group by month
+            const userInvestments = investments.filter(investment => investment.owner === currentUser);
             const monthlyData = {};
-            userInvestments.forEach(inv => {
-                if (!monthlyData[inv.month]) monthlyData[inv.month] = 0;
-                monthlyData[inv.month] += inv.shares * inv.purchasePrice;
+
+            userInvestments.forEach(investment => {
+                monthlyData[investment.month] = (monthlyData[investment.month] || 0) +
+                    investment.shares * investment.purchasePrice;
             });
 
             const months = Object.keys(monthlyData).sort();
-            const values = months.map(m => monthlyData[m]);
+            const values = months.map(month => monthlyData[month]);
 
             const ctx = document.getElementById('monthlyChart');
-            if (monthlyChart) monthlyChart.destroy();
+
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
 
             monthlyChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: months,
+                    labels: months.length ? months : ['No Data'],
                     datasets: [{
                         label: 'Monthly Investment Amount',
-                        data: values,
+                        data: values.length ? values : [0],
                         backgroundColor: '#10b981',
                         borderColor: '#059669',
                         borderWidth: 2
@@ -640,9 +810,11 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: true }
+                        legend: {
+                            display: true
+                        }
                     },
                     scales: {
                         y: {
@@ -652,67 +824,94 @@
                 }
             });
 
-            // Update stats
-            const totalInvested = values.reduce((a, b) => a + b, 0);
+            const totalInvested = values.reduce((sum, value) => sum + value, 0);
             const avgMonthly = values.length > 0 ? totalInvested / values.length : 0;
-            
-            document.getElementById('avgMonthly').innerText = `$${avgMonthly.toFixed(2)}`;
-            document.getElementById('totalInvested').innerText = `$${totalInvested.toFixed(2)}`;
-            document.getElementById('monthsActive').innerText = months.length;
+
+            document.getElementById('avgMonthly').textContent = formatCurrency(avgMonthly);
+            document.getElementById('totalInvested').textContent = formatCurrency(totalInvested);
+            document.getElementById('monthsActive').textContent = months.length;
         }
 
         function updateAllTimeView() {
-            const userInvestments = investments.filter(i => i.owner === currentUser);
-            
-            // Group by ticker
+            const userInvestments = investments.filter(investment => investment.owner === currentUser);
             const tickerData = {};
-            userInvestments.forEach(inv => {
-                if (!tickerData[inv.ticker]) {
-                    tickerData[inv.ticker] = {
-                        ticker: inv.ticker,
+
+            userInvestments.forEach(investment => {
+                if (!tickerData[investment.ticker]) {
+                    tickerData[investment.ticker] = {
+                        ticker: investment.ticker,
                         shares: 0,
                         totalCost: 0,
-                        sector: inv.sector
+                        sector: investment.sector
                     };
                 }
-                tickerData[inv.ticker].shares += inv.shares;
-                tickerData[inv.ticker].totalCost += inv.shares * inv.purchasePrice;
+
+                tickerData[investment.ticker].shares += investment.shares;
+                tickerData[investment.ticker].totalCost += investment.shares * investment.purchasePrice;
             });
 
             const tbody = document.getElementById('allTimeTableBody');
             tbody.innerHTML = '';
-            
-            let grandTotal = 0;
-            let grandValue = 0;
 
-            Object.values(tickerData).forEach(data => {
-                const priceMultiplier = priceCache[data.ticker] || (0.95 + Math.random() * 0.1);
-                const currentPrice = (data.totalCost / data.shares) * priceMultiplier;
-                const currentValue = data.shares * currentPrice;
+            const dataValues = Object.values(tickerData);
+
+            if (dataValues.length === 0) {
+                const tr = document.createElement('tr');
+                const td = createElement('td', 'p-6 text-center text-gray-500', 'No all-time holdings to display.');
+                td.colSpan = 7;
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+
+                document.getElementById('allTimeTotal').textContent = '$0.00';
+                document.getElementById('allTimeReturn').textContent = '+$0.00';
+                return;
+            }
+
+            let grandTotal = 0;
+            let grandCurrentValue = 0;
+
+            dataValues.forEach(data => {
                 const avgCostBasis = data.totalCost / data.shares;
+                const currentPrice = priceCache[data.ticker] || avgCostBasis;
+                const currentValue = data.shares * currentPrice;
                 const totalReturn = currentValue - data.totalCost;
 
                 grandTotal += data.totalCost;
-                grandValue += currentValue;
+                grandCurrentValue += currentValue;
 
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-emerald-700">${data.ticker}</td>
-                    <td class="p-3">${data.shares.toFixed(2)}</td>
-                    <td class="p-3">$${avgCostBasis.toFixed(2)}</td>
-                    <td class="p-3 font-bold text-gray-800">$${data.totalCost.toFixed(2)}</td>
-                    <td class="p-3 font-bold text-gray-800">$${currentValue.toFixed(2)}</td>
-                    <td class="p-3 font-bold ${totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}">${totalReturn >= 0 ? '+' : ''}$${totalReturn.toFixed(2)}</td>
-                    <td class="p-3 text-gray-600">${data.sector}</td>
-                `;
+
+                const cells = [
+                    { text: data.ticker, className: 'p-3 font-bold text-emerald-700' },
+                    { text: data.shares.toFixed(2), className: 'p-3' },
+                    { text: formatCurrency(avgCostBasis), className: 'p-3' },
+                    { text: formatCurrency(data.totalCost), className: 'p-3 font-bold text-gray-800' },
+                    { text: formatCurrency(currentValue), className: 'p-3 font-bold text-gray-800' },
+                    {
+                        text: formatSignedCurrency(totalReturn),
+                        className: `p-3 font-bold ${totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`
+                    },
+                    { text: data.sector, className: 'p-3 text-gray-600' }
+                ];
+
+                cells.forEach(cell => {
+                    const td = createElement('td', cell.className, cell.text);
+                    tr.appendChild(td);
+                });
+
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('allTimeTotal').innerText = `$${grandTotal.toFixed(2)}`;
-            document.getElementById('allTimeReturn').innerText = `${grandValue - grandTotal >= 0 ? '+' : ''}$${(grandValue - grandTotal).toFixed(2)}`;
+            const allTimeReturn = grandCurrentValue - grandTotal;
+
+            document.getElementById('allTimeTotal').textContent = formatCurrency(grandTotal);
+
+            const allTimeReturnElement = document.getElementById('allTimeReturn');
+            allTimeReturnElement.textContent = formatSignedCurrency(allTimeReturn);
+            allTimeReturnElement.className = `text-2xl font-bold ${allTimeReturn >= 0 ? 'text-green-700' : 'text-red-700'}`;
         }
 
-        function generateAISuggestions(userInvestments, totalValue) {
+        function generatePortfolioSuggestions(userInvestments, totalValue) {
             const suggestionsDiv = document.getElementById('aiSuggestions');
             const insightsDiv = document.getElementById('aiInsights');
             const tipsDiv = document.getElementById('aiTips');
@@ -722,12 +921,13 @@
             tipsDiv.innerHTML = '';
 
             if (userInvestments.length === 0) {
-                suggestionsDiv.innerHTML = '<p>Add investments to get personalized recommendations.</p>';
+                suggestionsDiv.appendChild(createElement('p', '', 'Add investments to receive portfolio insights.'));
+                insightsDiv.appendChild(createElement('p', '', 'No portfolio data available yet.'));
+                tipsDiv.appendChild(createElement('p', '', 'Start by adding your first holding.'));
                 return;
             }
 
-            // AI Suggested allocation
-            const suggestions = [
+            const exampleAllocation = [
                 { sector: 'Technology', target: 25 },
                 { sector: 'Healthcare', target: 20 },
                 { sector: 'Finance', target: 20 },
@@ -736,79 +936,126 @@
                 { sector: 'Other', target: 10 }
             ];
 
-            suggestions.forEach(sugg => {
-                const p = document.createElement('p');
-                p.innerHTML = `<span class="font-bold">${sugg.sector}:</span> Target ${sugg.target}%`;
+            exampleAllocation.forEach(item => {
+                const p = createElement('p');
+                p.textContent = `${item.sector}: Example target ${item.target}%`;
                 suggestionsDiv.appendChild(p);
             });
 
-            // Tips
+            const sectorTotals = {};
+            const tickerTotals = {};
+
+            userInvestments.forEach(investment => {
+                const currentPrice = priceCache[investment.ticker] || investment.purchasePrice;
+                const value = investment.shares * currentPrice;
+
+                sectorTotals[investment.sector] = (sectorTotals[investment.sector] || 0) + value;
+                tickerTotals[investment.ticker] = (tickerTotals[investment.ticker] || 0) + value;
+            });
+
+            const largestSector = Object.entries(sectorTotals).sort((a, b) => b[1] - a[1])[0];
+            const largestHolding = Object.entries(tickerTotals).sort((a, b) => b[1] - a[1])[0];
+
+            if (largestSector && totalValue > 0) {
+                const sectorPercent = (largestSector[1] / totalValue) * 100;
+
+                insightsDiv.appendChild(
+                    createElement('p', '', `${largestSector[0]} is your largest sector at ${sectorPercent.toFixed(1)}% of your portfolio.`)
+                );
+
+                if (sectorPercent > 40) {
+                    insightsDiv.appendChild(
+                        createElement('p', 'font-semibold text-yellow-800', `Your portfolio may be concentrated in ${largestSector[0]}. Consider reviewing diversification.`)
+                    );
+                }
+            }
+
+            if (largestHolding && totalValue > 0) {
+                const holdingPercent = (largestHolding[1] / totalValue) * 100;
+
+                insightsDiv.appendChild(
+                    createElement('p', '', `${largestHolding[0]} is your largest holding at ${holdingPercent.toFixed(1)}% of your portfolio.`)
+                );
+
+                if (holdingPercent > 30) {
+                    insightsDiv.appendChild(
+                        createElement('p', 'font-semibold text-yellow-800', `A single holding represents more than 30% of your portfolio.`)
+                    );
+                }
+            }
+
             const tips = [
-                '🎯 Rebalance quarterly to maintain target allocation',
-                '📊 Monitor sector weights regularly',
-                '💡 Consider low-cost index funds for diversification',
-                '⏰ Average cost down with regular contributions'
+                '🎯 Review your portfolio allocation regularly.',
+                '📊 Avoid relying on one sector or one stock only.',
+                '💡 Consider broad diversification where appropriate.',
+                '⏰ Review your investment goals before making changes.'
             ];
 
             tips.forEach(tip => {
-                const p = document.createElement('p');
-                p.innerHTML = tip;
-                tipsDiv.appendChild(p);
+                tipsDiv.appendChild(createElement('p', '', tip));
             });
         }
 
-        async function fetchLatestNews() {
+        function fetchLatestNews() {
             const newsFeed = document.getElementById('newsFeed');
-            
-            // Simulated news feed - in production use real API
+
             const newsItems = [
                 {
-                    title: "S&P 500 hits new all-time high amid positive earnings reports",
-                    summary: "Major tech stocks lead the market rally with strong quarterly results.",
-                    source: "Financial Times",
-                    time: "2 hours ago"
+                    title: 'Sample: Major indexes move as investors review earnings reports',
+                    summary: 'This is a demo headline used to show how a market news section could look.',
+                    source: 'Demo Financial News',
+                    time: 'Demo'
                 },
                 {
-                    title: "Federal Reserve holds interest rates steady",
-                    summary: "Central bank signals data-dependent approach to future policy decisions.",
-                    source: "Reuters",
-                    time: "4 hours ago"
+                    title: 'Sample: Central bank policy remains a key focus for markets',
+                    summary: 'Investors often monitor interest rate expectations and inflation data.',
+                    source: 'Demo Market Brief',
+                    time: 'Demo'
                 },
                 {
-                    title: "AI stocks continue momentum with new breakthrough announcements",
-                    summary: "Sector sees renewed investor interest following latest AI developments.",
-                    source: "Bloomberg",
-                    time: "5 hours ago"
+                    title: 'Sample: Technology sector continues to attract investor attention',
+                    summary: 'Growth sectors can experience both strong momentum and high volatility.',
+                    source: 'Demo Tech Markets',
+                    time: 'Demo'
                 },
                 {
-                    title: "Oil prices surge on OPEC production cuts",
-                    summary: "Energy sector rallies as geopolitical tensions influence commodity prices.",
-                    source: "CNBC",
-                    time: "6 hours ago"
+                    title: 'Sample: Energy prices influence commodity-linked stocks',
+                    summary: 'Commodity movements may affect energy producers and related industries.',
+                    source: 'Demo Commodities Desk',
+                    time: 'Demo'
                 },
                 {
-                    title: "Healthcare merger creates largest pharmaceutical company",
-                    summary: "Major consolidation move reshapes the industry landscape.",
-                    source: "Wall Street Journal",
-                    time: "8 hours ago"
+                    title: 'Sample: Diversification remains important for long-term investors',
+                    summary: 'Portfolio concentration can increase risk if one sector or asset performs poorly.',
+                    source: 'Demo Investor Education',
+                    time: 'Demo'
                 }
             ];
 
-            newsFeed.innerHTML = newsItems.map(news => `
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-emerald-400 transition">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-gray-800 flex-1">${news.title}</h3>
-                        <span class="text-xs text-gray-500 ml-2 whitespace-nowrap">${news.time}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-2">${news.summary}</p>
-                    <p class="text-xs font-semibold text-emerald-700">${news.source}</p>
-                </div>
-            `).join('');
+            newsFeed.innerHTML = '';
+
+            newsItems.forEach(news => {
+                const card = createElement('div', 'bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-emerald-400 transition');
+
+                const header = createElement('div', 'flex justify-between items-start mb-2');
+                const title = createElement('h3', 'font-bold text-gray-800 flex-1', news.title);
+                const time = createElement('span', 'text-xs text-gray-500 ml-2 whitespace-nowrap', news.time);
+
+                header.appendChild(title);
+                header.appendChild(time);
+
+                const summary = createElement('p', 'text-sm text-gray-600 mb-2', news.summary);
+                const source = createElement('p', 'text-xs font-semibold text-emerald-700', news.source);
+
+                card.appendChild(header);
+                card.appendChild(summary);
+                card.appendChild(source);
+
+                newsFeed.appendChild(card);
+            });
         }
 
-        // Initialize
         window.addEventListener('DOMContentLoaded', checkAuth);
-        checkAuth();
     </script>
 </body>
 </html>
