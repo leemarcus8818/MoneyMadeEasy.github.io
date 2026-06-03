@@ -66,51 +66,44 @@
         </div>
     </div>
 
-    <script>
-        function isValidProfileName(name) {
-            return /^[A-Za-z0-9 _.-]{1,24}$/.test(name);
+<script>
+    function handleLogin() {
+        const usernameInput = document.getElementById('usernameInput');
+
+        if (!usernameInput) {
+            alert('Login input not found.');
+            return;
         }
 
-        function showError(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
+        const userInput = usernameInput.value.trim();
+
+        if (!userInput) {
+            alert('Please enter a profile name.');
+            return;
         }
 
-        function hideError() {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.classList.add('hidden');
+        localStorage.setItem('mme_logged_user', userInput);
+        window.location.href = './dashboard.html';
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+        const usernameInput = document.getElementById('usernameInput');
+
+        if (usernameInput) {
+            usernameInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    handleLogin();
+                }
+            });
         }
 
-        function handleLogin() {
-            hideError();
+        // Only redirect if already logged in and currently on login page
+        const existingUser = localStorage.getItem('mme_logged_user');
 
-            const usernameInput = document.getElementById('usernameInput');
-            const userInput = usernameInput.value.trim();
-
-            if (!userInput) {
-                showError('Please enter a profile name.');
-                return;
-            }
-
-            if (!isValidProfileName(userInput)) {
-                showError('Use letters, numbers, spaces, dots, hyphens, or underscores only.');
-                return;
-            }
-
-            localStorage.setItem('mme_logged_user', userInput);
+        if (existingUser) {
             window.location.href = './dashboard.html';
         }
-
-        document.getElementById('usernameInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                handleLogin();
-            }
-        });
-
-        if (localStorage.getItem('mme_logged_user')) {
-            window.location.href = './dashboard.html';
-        }
-    </script>
+    });
+</script>
 </body>
 </html>
