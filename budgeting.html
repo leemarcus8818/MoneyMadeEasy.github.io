@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoneyMadeEasy - Budgeting</title>
+    <meta name="description" content="Log income and expenses, view monthly spending categories, and get budget insights with MoneyMadeEasy." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-emerald-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <header class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-emerald-900 p-6 rounded-2xl shadow-sm text-white">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight text-emerald-300">💰 MoneyMadeEasy</h1>
+                <p class="text-sm text-emerald-100">Budgeting Dashboard for <span id="userGreeting" class="font-bold text-white underline">User</span></p>
+            </div>
+            <nav class="flex flex-wrap items-center gap-3">
+                <select id="monthFilter" class="bg-emerald-800 text-emerald-100 font-bold p-2 px-4 rounded-xl border border-emerald-700 focus:outline-none"></select>
+                <a href="./dashboard.html" class="bg-emerald-700 hover:bg-emerald-800 text-xs font-bold p-2 px-3 rounded-xl text-white">← Dashboard</a>
+                <a href="./investments.html" class="bg-blue-700 hover:bg-blue-800 text-xs font-bold p-2 px-3 rounded-xl text-white">📈 Investments</a>
+                <button type="button" onclick="handleLogout()" class="bg-red-700 hover:bg-red-800 text-xs font-bold p-2 px-3 rounded-xl text-white">Sign Out</button>
+            </nav>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100"><p class="text-sm text-gray-500 font-semibold">Monthly Income</p><p id="monthlyIncome" class="text-4xl font-black text-emerald-700 mt-2">HK$0.00</p></div>
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100"><p class="text-sm text-gray-500 font-semibold">Monthly Expenses</p><p id="totalExpense" class="text-4xl font-black text-red-600 mt-2">HK$0.00</p></div>
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100"><p class="text-sm text-gray-500 font-semibold">Net Savings</p><p id="balance" class="text-4xl font-black text-emerald-700 mt-2">HK$0.00</p></div>
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100"><p class="text-sm text-gray-500 font-semibold">Savings Rate</p><p id="savingsRate" class="text-4xl font-black text-blue-700 mt-2">0.0%</p></div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4">
+                <h2 class="text-xl font-bold text-gray-800">Add Transaction</h2>
+                <div class="space-y-3">
+                    <select id="transactionType" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                        <option value="savings">Savings / Investment</option>
+                    </select>
+                    <input id="desc" type="text" placeholder="Description e.g. Salary, Rent, Lunch" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" />
+                    <input id="amount" type="number" min="0" step="0.01" placeholder="Amount e.g. 5000 or 50" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800" />
+                    <select id="category" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-800"></select>
+                    <button type="button" onclick="addTransaction()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-3 rounded-xl transition-all shadow-md">Log Transaction</button>
+                </div>
+                <hr class="border-gray-100 my-4" />
+                <h3 class="font-bold text-gray-700 mb-2">Monthly History</h3>
+                <ul id="list" class="divide-y divide-gray-100 max-h-80 overflow-y-auto pr-1"></ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col justify-between">
+                <div><h2 class="text-xl font-bold text-gray-800 mb-1">Category Breakdown</h2><p class="text-xs text-gray-500 mb-4">Expense breakdown for selected month</p></div>
+                <div class="w-full max-w-[300px] mx-auto relative h-72"><canvas id="categoryChart"></canvas></div>
+                <p id="topCategory" class="mt-4 text-sm text-gray-600 text-center">Top category: none yet</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow border border-gray-100 flex flex-col">
+                <div class="flex items-center space-x-2 mb-4"><span class="p-2 bg-emerald-100 rounded-lg text-emerald-800">✨</span><h2 class="text-xl font-bold text-gray-800">Budget Insights</h2></div>
+                <div id="aiConsole" class="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-3 overflow-y-auto max-h-[380px]"></div>
+            </div>
+        </section>
+    </div>
+
+<script src="./app.js"></script>
+<script>
+let budgetChart = null;
+const categoryOptions = {
+    expense: [ ['Housing','🏠 Rent / Housing'], ['Food','🍔 Food & Dining'], ['Transport','🚗 Gas / Transit'], ['Leisure','🎉 Entertainment / Fun'] ],
+    income: [ ['Income','💰 Income / Paycheck'] ],
+    savings: [ ['Savings','📈 Investments / Savings'] ]
+};
+function refreshCategoryOptions() {
+    const type = document.getElementById('transactionType').value;
+    const category = document.getElementById('category');
+    category.innerHTML = '';
+    categoryOptions[type].forEach(([value, label]) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        category.appendChild(option);
+    });
+}
+function addTransaction() {
+    if (!MME.requireAuth()) return;
+    const descInput = document.getElementById('desc');
+    const amountInput = document.getElementById('amount');
+    const type = document.getElementById('transactionType').value;
+    const category = document.getElementById('category').value;
+    const desc = descInput.value.trim();
+    let amount = Math.abs(parseFloat(amountInput.value));
+    if (!desc || isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid description and positive amount.');
+        return;
+    }
+    if (type === 'expense') amount = -amount;
+    const transactions = MME.getTransactions();
+    transactions.push({ id: Date.now(), desc, amount, category, month: MME.selectedMonth(), owner: MME.currentUser, date: new Date().toISOString() });
+    MME.saveTransactions(transactions);
+    descInput.value = '';
+    amountInput.value = '';
+    updateBudgetUI();
+}
+function deleteTransaction(id) {
+    if (!confirm('Delete this transaction?')) return;
+    MME.saveTransactions(MME.getTransactions().filter(transaction => transaction.id !== id));
+    updateBudgetUI();
+}
+function updateBudgetUI() {
+    const monthlyData = MME.getUserTransactions().filter(t => t.month === MME.selectedMonth());
+    const { netBalance, totalExpense, totalIncome, categories } = MME.calculateTransactionTotals(monthlyData);
+    document.getElementById('monthlyIncome').textContent = MME.formatCurrency(totalIncome);
+    document.getElementById('totalExpense').textContent = MME.formatCurrency(totalExpense);
+    document.getElementById('balance').textContent = MME.formatCurrency(netBalance);
+    document.getElementById('balance').className = `text-4xl font-black mt-2 ${netBalance < 0 ? 'text-red-600' : 'text-emerald-700'}`;
+    document.getElementById('savingsRate').textContent = `${(totalIncome > 0 ? (netBalance / totalIncome) * 100 : 0).toFixed(1)}%`;
+    renderTransactionList(monthlyData);
+    renderBudgetChart(categories, totalExpense);
+    renderBudgetInsights(netBalance, totalExpense, totalIncome, categories);
+}
+function renderTransactionList(monthlyData) {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    if (!monthlyData.length) {
+        list.appendChild(MME.createElement('li', 'text-sm text-gray-500 text-center py-4', 'No transactions logged for this month yet.'));
+        return;
+    }
+    monthlyData.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(transaction => {
+        const amount = Number(transaction.amount || 0);
+        const li = MME.createElement('li', 'flex justify-between py-2 text-sm items-center hover:bg-gray-50 px-2 rounded');
+        const left = MME.createElement('div');
+        left.appendChild(MME.createElement('p', 'font-semibold text-gray-800', transaction.desc));
+        left.appendChild(MME.createElement('p', 'text-xs text-gray-500', transaction.category));
+        const right = MME.createElement('div', 'flex items-center space-x-2');
+        right.appendChild(MME.createElement('span', `font-bold ${amount < 0 ? 'text-red-500' : 'text-emerald-600'}`, MME.formatSignedCurrency(amount)));
+        const btn = MME.createElement('button', 'ml-2 p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs font-bold transition', '✕');
+        btn.onclick = () => deleteTransaction(transaction.id);
+        right.appendChild(btn);
+        li.appendChild(left); li.appendChild(right); list.appendChild(li);
+    });
+}
+function renderBudgetChart(categories, totalExpense) {
+    const canvas = document.getElementById('categoryChart');
+    if (budgetChart) budgetChart.destroy();
+    const entries = Object.entries(categories).filter(([, value]) => value > 0 && value <= totalExpense);
+    const labels = entries.length ? entries.map(([name, value]) => `${name} (${((value / totalExpense) * 100).toFixed(0)}%)`) : ['No Expenses'];
+    const values = entries.length ? entries.map(([, value]) => value) : [1];
+    document.getElementById('topCategory').textContent = entries.length ? `Top category: ${entries.sort((a,b)=>b[1]-a[1])[0][0]}` : 'Top category: none yet';
+    budgetChart = new Chart(canvas, { type: 'doughnut', data: { labels, datasets: [{ data: values, backgroundColor: ['#022c22','#065f46','#0f766e','#10b981','#6ee7b7'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } } });
+}
+function renderBudgetInsights(balance, expenses, income, cats) {
+    const box = document.getElementById('aiConsole');
+    box.innerHTML = '';
+    const insights = [];
+    if (balance < 0) insights.push(['danger','Deficit Alert','Your expenses are higher than your income this month. Review flexible categories first.']);
+    if (expenses > 0 && cats.Leisure / expenses > 0.20) insights.push(['warning','High Leisure Spending',`Leisure spending is ${(cats.Leisure / expenses * 100).toFixed(0)}% of expenses.`]);
+    if (income > 0 && balance / income < 0.20) insights.push(['info','Savings Opportunity','Your net savings are below 20% of income this month.']);
+    if (expenses > 0 && cats.Food / expenses > 0.30) insights.push(['warning','Food Spending Check',`Food spending is ${(cats.Food / expenses * 100).toFixed(0)}% of expenses.`]);
+    if (!insights.length) insights.push(['success','Healthy Monthly Budget','No major budget issues detected for this month.']);
+    const colors = { danger:'bg-red-50 border-red-200 text-red-800', warning:'bg-amber-50 border-amber-200 text-amber-800', info:'bg-emerald-50 border-emerald-200 text-emerald-800', success:'bg-emerald-950 text-emerald-100 border-emerald-900' };
+    insights.forEach(([type,title,text]) => {
+        const div = MME.createElement('div', `p-3 rounded-xl border ${colors[type]} text-xs`);
+        div.appendChild(MME.createElement('p', 'font-bold mb-0.5', `💡 ${title}`));
+        div.appendChild(MME.createElement('p', '', text));
+        box.appendChild(div);
+    });
+}
+window.addEventListener('DOMContentLoaded', () => {
+    if (!MME.requireAuth()) return;
+    MME.migrateLegacyOwners();
+    refreshCategoryOptions();
+    document.getElementById('transactionType').addEventListener('change', refreshCategoryOptions);
+    MME.populateMonthFilter(updateBudgetUI);
+    ['desc','amount'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') addTransaction(); }));
+    updateBudgetUI();
+});
+</script>
+</body>
+</html>
