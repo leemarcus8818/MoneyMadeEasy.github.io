@@ -34,7 +34,7 @@ const MME = {
     },
     requireAuth() {
         if (!this.currentUser) {
-            window.location.href = './index.html';
+            window.location.href = './login.html';
             return false;
         }
         const greeting = document.getElementById('userGreeting');
@@ -43,7 +43,7 @@ const MME = {
     },
     logout() {
         localStorage.removeItem(this.STORAGE_KEYS.user);
-        window.location.href = './index.html';
+        window.location.href = './login.html';
     },
     createElement(tag, className = '', textContent) {
         const element = document.createElement(tag);
