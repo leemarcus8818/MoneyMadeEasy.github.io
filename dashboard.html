@@ -311,7 +311,7 @@
         }
         function handleLogout() {
             localStorage.removeItem('mme_logged_user');
-            window.location.href = './index.html';
+            window.location.href = './login.html';
         }
         function createElement(tag, className, textContent) {
             const element = document.createElement(tag);
@@ -522,7 +522,7 @@
         async function updateUI() {
             currentUser = localStorage.getItem('mme_logged_user') || null;
             if (!currentUser) {
-                window.location.href = './index.html';
+                window.location.href = './login.html';
                 return;
             }
 
@@ -671,7 +671,7 @@
         function saveGoalFromForm() {
             currentUser = localStorage.getItem('mme_logged_user') || null;
             if (!currentUser) {
-                window.location.href = './index.html';
+                window.location.href = './login.html';
                 return;
             }
             const editId = document.getElementById('goalEditId').value;
