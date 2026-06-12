@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoneyMadeEasy - Pricing</title>
+    <meta name="description" content="Choose a MoneyMadeEasy plan for budgeting, financial goals, cash flow forecasting, and investment tracking." />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-emerald-50 min-h-screen text-gray-900">
+    <!-- Header -->
+    <header class="sticky top-0 z-20 border-b border-emerald-100 bg-white/90 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+            <a href="./pricing.html" class="flex items-center gap-2 font-black text-emerald-950 text-xl">
+                <span class="text-2xl">💰</span>
+                <span>MoneyMadeEasy</span>
+            </a>
+            <nav class="flex flex-wrap items-center gap-3 text-sm font-bold">
+                <a href="#plans" class="text-gray-600 hover:text-emerald-800">Plans</a>
+                <a href="#features" class="text-gray-600 hover:text-emerald-800">Features</a>
+                <a href="#faq" class="text-gray-600 hover:text-emerald-800">FAQ</a>
+                <a href="./index.html" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl transition">Log in</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="max-w-7xl mx-auto px-4 md:px-8 pt-16 pb-10 text-center">
+            <p class="inline-flex items-center rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-800 border border-emerald-200">
+                Simple pricing for smarter money planning
+            </p>
+            <h1 class="mt-6 text-4xl md:text-6xl font-black tracking-tight text-emerald-950">
+                Pick the plan that fits your financial journey
+            </h1>
+            <p class="mt-5 max-w-3xl mx-auto text-lg text-gray-600">
+                MoneyMadeEasy helps you understand your budget, track assets, forecast cash flow, and allocate money toward goals — all from one clean dashboard.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="./index.html" class="bg-emerald-700 hover:bg-emerald-800 text-white font-black px-6 py-3 rounded-2xl shadow-lg transition">
+                    Continue to Login →
+                </a>
+                <a href="#plans" class="bg-white hover:bg-gray-50 text-emerald-900 font-black px-6 py-3 rounded-2xl border border-emerald-200 transition">
+                    View plans
+                </a>
+            </div>
+            <p class="mt-4 text-xs text-gray-500">
+                Demo subscription page only. No payment processing is connected yet.
+            </p>
+        </section>
+
+        <!-- Pricing cards -->
+        <section id="plans" class="max-w-7xl mx-auto px-4 md:px-8 py-10">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Starter -->
+                <article class="bg-white rounded-3xl border border-gray-100 shadow p-6 flex flex-col">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-2xl font-black text-gray-900">Starter</h2>
+                            <p class="text-sm text-gray-500 mt-1">For simple personal tracking</p>
+                        </div>
+                        <span class="text-xs font-bold bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Free</span>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-5xl font-black text-emerald-950">$0</p>
+                        <p class="text-sm text-gray-500 mt-1">local browser demo</p>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-sm text-gray-700 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Budget dashboard and category chart</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Manual transaction entry</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Basic asset overview</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Local browser storage</span></li>
+                    </ul>
+                    <a href="./index.html" class="mt-8 text-center bg-gray-100 hover:bg-gray-200 text-gray-900 font-black p-3 rounded-2xl transition">
+                        Start free
+                    </a>
+                </article>
+
+                <!-- Pro -->
+                <article class="relative bg-emerald-950 rounded-3xl border border-emerald-900 shadow-xl p-6 flex flex-col text-white overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-emerald-400 text-emerald-950 text-xs font-black px-4 py-2 rounded-bl-2xl">
+                        Recommended
+                    </div>
+                    <div class="flex items-start justify-between gap-3 pr-24">
+                        <div>
+                            <h2 class="text-2xl font-black">Pro</h2>
+                            <p class="text-sm text-emerald-100 mt-1">For monthly planning and goals</p>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-5xl font-black">$4.99</p>
+                        <p class="text-sm text-emerald-100 mt-1">per month, planned</p>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-sm text-emerald-50 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-300 font-black">✓</span><span>Everything in Starter</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-300 font-black">✓</span><span>Financial Goals Planner</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-300 font-black">✓</span><span>Goal allocation and monthly plan</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-300 font-black">✓</span><span>Cash flow and savings insights</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-300 font-black">✓</span><span>Investment portfolio dashboard</span></li>
+                    </ul>
+                    <a href="./index.html" class="mt-8 text-center bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black p-3 rounded-2xl transition">
+                        Choose Pro
+                    </a>
+                </article>
+
+                <!-- Premium -->
+                <article class="bg-white rounded-3xl border border-gray-100 shadow p-6 flex flex-col">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-2xl font-black text-gray-900">Premium</h2>
+                            <p class="text-sm text-gray-500 mt-1">For advanced tracking later</p>
+                        </div>
+                        <span class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Planned</span>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-5xl font-black text-emerald-950">$9.99</p>
+                        <p class="text-sm text-gray-500 mt-1">per month, planned</p>
+                    </div>
+                    <ul class="mt-6 space-y-3 text-sm text-gray-700 flex-1">
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Everything in Pro</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>CSV import for bank statements</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Advanced cash flow forecasting</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Custom reports and exports</span></li>
+                        <li class="flex gap-2"><span class="text-emerald-600 font-black">✓</span><span>Future read-only account integrations</span></li>
+                    </ul>
+                    <a href="./index.html" class="mt-8 text-center bg-emerald-700 hover:bg-emerald-800 text-white font-black p-3 rounded-2xl transition">
+                        Choose Premium
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <!-- Why paid -->
+        <section class="max-w-7xl mx-auto px-4 md:px-8 py-10">
+            <div class="bg-white rounded-3xl border border-gray-100 shadow p-8 md:p-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <h2 class="text-3xl font-black text-emerald-950">Why a subscription model?</h2>
+                        <p class="mt-4 text-gray-600">
+                            A subscription-first finance app can focus on useful planning tools instead of ads. MoneyMadeEasy is currently a demo, but this page shows how a future plan structure could look.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                            <p class="font-black text-emerald-950">No ad-first design</p>
+                            <p class="text-sm text-gray-600 mt-2">The app experience can stay focused on your money decisions.</p>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                            <p class="font-black text-emerald-950">Privacy-minded roadmap</p>
+                            <p class="text-sm text-gray-600 mt-2">Keep local-first tracking and add safer import options before live account links.</p>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                            <p class="font-black text-emerald-950">Better planning tools</p>
+                            <p class="text-sm text-gray-600 mt-2">Goals, allocations, forecasting, and portfolio tracking can keep improving.</p>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                            <p class="font-black text-emerald-950">Transparent value</p>
+                            <p class="text-sm text-gray-600 mt-2">Users can see what features belong in each plan before logging in.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features comparison -->
+        <section id="features" class="max-w-7xl mx-auto px-4 md:px-8 py-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-emerald-950">Compare features</h2>
+                <p class="text-gray-600 mt-2">A simple overview of what each tier could include.</p>
+            </div>
+            <div class="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow">
+                <table class="w-full text-sm">
+                    <thead class="bg-emerald-950 text-white">
+                        <tr>
+                            <th class="text-left p-4">Feature</th>
+                            <th class="text-center p-4">Starter</th>
+                            <th class="text-center p-4">Pro</th>
+                            <th class="text-center p-4">Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr><td class="p-4 font-semibold">Budget dashboard</td><td class="p-4 text-center">✓</td><td class="p-4 text-center">✓</td><td class="p-4 text-center">✓</td></tr>
+                        <tr><td class="p-4 font-semibold">Financial goals planner</td><td class="p-4 text-center">—</td><td class="p-4 text-center">✓</td><td class="p-4 text-center">✓</td></tr>
+                        <tr><td class="p-4 font-semibold">Investment dashboard</td><td class="p-4 text-center">Basic</td><td class="p-4 text-center">✓</td><td class="p-4 text-center">✓</td></tr>
+                        <tr><td class="p-4 font-semibold">Cash flow forecasting</td><td class="p-4 text-center">—</td><td class="p-4 text-center">Basic</td><td class="p-4 text-center">Advanced</td></tr>
+                        <tr><td class="p-4 font-semibold">CSV import</td><td class="p-4 text-center">—</td><td class="p-4 text-center">—</td><td class="p-4 text-center">Planned</td></tr>
+                        <tr><td class="p-4 font-semibold">Custom exports</td><td class="p-4 text-center">—</td><td class="p-4 text-center">—</td><td class="p-4 text-center">Planned</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="max-w-4xl mx-auto px-4 md:px-8 py-10 pb-16">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-emerald-950">Frequently asked questions</h2>
+            </div>
+            <div class="space-y-4">
+                <details class="bg-white rounded-2xl border border-gray-100 shadow p-5">
+                    <summary class="font-black cursor-pointer">Is payment processing enabled?</summary>
+                    <p class="mt-3 text-sm text-gray-600">No. This is a pricing and subscription landing page only. The buttons currently continue to the login page.</p>
+                </details>
+                <details class="bg-white rounded-2xl border border-gray-100 shadow p-5">
+                    <summary class="font-black cursor-pointer">Where does my data go?</summary>
+                    <p class="mt-3 text-sm text-gray-600">Your current MoneyMadeEasy demo stores data locally in your browser using localStorage.</p>
+                </details>
+                <details class="bg-white rounded-2xl border border-gray-100 shadow p-5">
+                    <summary class="font-black cursor-pointer">Can I still access the app directly?</summary>
+                    <p class="mt-3 text-sm text-gray-600">Yes. Click any plan button or the Log in button to continue to the existing login page.</p>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <!-- Copyright Footer -->
+    <footer class="mt-8 border-t border-emerald-100 bg-white/80 py-4 text-center text-xs font-semibold text-gray-500">
+        © 2026 MoneyMadeEasy
+    </footer>
+</body>
+</html>
