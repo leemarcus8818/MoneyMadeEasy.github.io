@@ -43,5 +43,11 @@ function updateAllTimeView(){const data={}; MME.getUserInvestments().forEach(i=>
 function fetchLatestNews(){const feed=document.getElementById('newsFeed'); const items=['Sample: Major indexes move as investors review earnings reports','Sample: Central bank policy remains a key focus for markets','Sample: Technology sector continues to attract investor attention','Sample: Diversification remains important for long-term investors']; feed.innerHTML=''; items.forEach(title=>{const card=MME.createElement('div','bg-gray-50 p-4 rounded-xl border border-gray-200'); card.appendChild(MME.createElement('h3','font-bold text-gray-800',title)); card.appendChild(MME.createElement('p','text-sm text-gray-600 mt-1','Demo headline for layout only.')); feed.appendChild(card);});}
 window.addEventListener('DOMContentLoaded',()=>{if(!MME.requireAuth())return; MME.migrateLegacyOwners(); if(!localStorage.getItem('finnhub_api_key'))document.getElementById('apiKeyNotice').classList.remove('hidden'); updatePortfolioDisplay(); fetchLatestNews();});
 </script>
+    
+    <!-- Copyright Footer -->
+    <footer class="mt-8 border-t border-emerald-100 bg-white/80 py-4 text-center text-xs font-semibold text-gray-500">
+        © 2026 MoneyMadeEasy
+    </footer>
+
 </body>
 </html>
